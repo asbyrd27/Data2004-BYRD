@@ -1,0 +1,10 @@
+install.packages("tidyverse")
+library(tidyverse)
+getwd()
+population_csv <- read_csv("data/raw/API_SP.POP.TOTL_DS2_en_csv_v2_285942.csv")
+population_csv <- read_csv("data/raw/API_SP.POP.TOTL_DS2_en_csv_v2_285942.csv",
+                           skip=4)
+glimpse(population_csv)
+population_csv <- population_csv |>
+  select(...71)
+glimpse(population_csv)
