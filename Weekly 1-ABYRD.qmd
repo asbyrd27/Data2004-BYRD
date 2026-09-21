@@ -1,0 +1,297 @@
+---
+title: "Weekly 1: Formula 1 Data"
+author: "[Aiden Byrd]"
+format:
+  html:
+    embed-resources: true
+editor: visual
+---
+
+## Overview
+
+You want to know whether qualifying performance is related to finishing performance in Formula 1.
+
+That turns out to be two problems, not one. Qualifying results and race results live in separate tables, so you have to connect them. And the qualifying data do not cover the whole history of the results data, so connecting them quietly decides which races your answer is about.
+
+Your job is to work out what can be connected, what cannot, and what that means for the scope of the question you started with.
+
+A few things:
+
+1.  Add `#| echo: false` to your code blocks. It will make your life and mine easier. I put it in the first two to remind you. After that you'll need to insert your own.
+2.  Use a new block when you move to a new task. Don't put everything in one.
+3.  Code goes in the blocks. **Answers go outside them**, in the document, as prose. A comment inside a code chunk is not an answer.
+4.  Data dictionaries for each CSV are on Canvas.
+
+## Your data
+
+You will use three tables:
+
+- `results.csv`
+- `qualifying.csv`
+- `races.csv`
+
+Import the three files. You'll need to tell R to treat `""`, `"NA"`, and `"\\N"` as NA values. Run `?read_csv` in your console to see how the `na = c()` argument works.
+
+```{r}
+#| warning: false
+library(tidyverse)
+setwd("C:/Users/aiden/OneDrive/Documents/GitHub/Data2004-BYRD/data/raw")
+
+results <- read_csv("results.csv", na = c("", "NA", "\\N"))
+qualifying <- read_csv("qualifying.csv", na = c("", "NA", "\\N"))
+races <- read_csv("races.csv", na = c("", "NA", "\\N"))
+
+```
+
+Inspect your tables.
+
+```{r}
+#| echo: false
+
+glimpse(results)
+glimpse(qualifying)
+glimpse(races)
+```
+
+## Before moving forward
+
+For each table, answer:
+
+> What does one row represent?
+>
+> results-one row represents one drivers result in one race, Qualifying-one row=one drivers qualifying performance in one race, in races-one row=one race from one event in one year
+
+> What variable uniquely identifies one row?
+>
+> resultsId, qualifyId, racesId
+
+> What variable(s) connect this table to the other tables?
+>
+> raceId links to races, driverId links to results
+
+## What is the grain?
+
+You are ultimately interested in **qualifying performances**, so your final table needs to preserve the grain that lets you make that comparison.
+
+> Which table should establish the grain of your final analytic table? Why?
+>
+> Qualifying becuase we are interested in qualifying performances, so the final table needs to focus on one driver's qualifying performance in one race
+
+Now build smaller working tables with only the variables you need.
+
+Your qualifying table should include:
+
+1.  `qualifyId`
+2.  `raceId`
+3.  `driverId`
+4.  `position`
+
+Your results table should include:
+
+1.  `resultId`
+2.  `raceId`
+3.  `driverId`
+4.  `positionOrder`
+
+Your races table should include:
+
+1.  `raceId`
+
+2.  `year`
+
+3.  `name`
+
+    ```{r}
+    #| echo: false
+
+    qualifying_small <- qualifying |> 
+      select(qualifyId, raceId, driverId, position)
+    results_small <- results |> 
+      select(resultId, raceId, driverId, positionOrder)
+    races_small <- races |> 
+      select(raceId, year, name)
+
+    qualifying_small |> count(qualifyId) |> filter(n > 1)
+    results_small |> count(resultId) |> filter(n > 1)
+    races_small |> count(raceId) |> filter(n > 1)
+    ```
+
+Verify your primary keys before you use them. For each table, check whether the identifying variable is actually unique, and whether any of your joining variables are missing.
+
+```{r}
+#| echo: false
+
+qualifying_small |> summarise(across(c(raceId, driverId), ~sum(is.na(.x))))
+results_small |> summarise(across(c(raceId, driverId), ~sum(is.na(.x))))
+races_small |> summarise(across(raceId, ~sum(is.na(.x))))
+```
+
+> Did every key check pass? What would it have meant for the joins ahead if one hadn't?
+>
+> Yes every key passed, no duplicates and/or missing values in the joining variables. If a key was not unique, joining it could have made duplicate rows.
+
+## Connect qualifying and race results
+
+> Add finishing order to each qualifying record, wherever a matching race result exists.
+
+A note before you write it: `join_by()` takes more than one variable. Think about what it takes to pin down a single result. Is knowing the driver enough? Two drivers can finish third in different races. Two results can come from the same race. What combination actually identifies one driver's result in one race?
+
+Answer these **before** you run the join:
+
+> What should one row represent afterward?
+>
+> One row should still represent one driver's qualifying performance in one race, but it includes position now too.
+
+> Should the number of qualifying rows change? No, they should stay the same
+
+Now actually do the join.
+
+```{r}
+#| echo: false
+
+qualifying_results <- qualifying_small |> 
+  left_join(
+    results_small,
+    by = join_by(raceId, driverId),
+    relationship = "one-to-one"
+  )
+nrow(qualifying_results)
+nrow(qualifying_small)
+```
+
+> Use `relationship =` to state the cardinality you expect. Did R agree with you? If it didn't, what does that tell you about the data?
+>
+> I expected a one to one relationship because each qualifying record should match at most one result for the same race and driver
+
+> Do any qualifying records have no matching race result? How many? No, every record found a corresponding result in the results table
+
+Then add the race year and race name to your joined table.
+
+```{r}
+#| echo: false
+
+qualifying_results <- qualifying_results |> 
+  left_join(
+    races_small,
+    by = join_by(raceId)
+  )
+nrow(qualifying_results)
+```
+
+> Should that join change your row count? No, it did not.
+
+## Investigate the historical coverage
+
+So far you've worked outward from the qualifying records, it's where you started and attached results to. That answers "what happened to the drivers we have qualifying data for."
+
+> But how much of Formula 1's race results history can actually be connected to qualifying data?
+
+You can't answer this by comparing row counts. The two tables have different grains and different numbers of rows. What you can compare is **which race-driver combinations appear in each one**.
+
+Build a table containing every distinct `raceId`–`driverId` combination in `results`. Then build the same thing from `qualifying`.
+
+```{r}
+#| echo: false
+
+results_combos <- results_small |> 
+  distinct(raceId, driverId)
+
+qualifying_combos <- qualifying_small |> 
+  distinct(raceId, driverId)
+
+nrow(results_combos)
+nrow(qualifying_combos)
+
+```
+
+> What does one row represent in each of these tables?
+>
+> One row represents one driver's participation in a specific race, no performance numbers attached though
+
+> Why `distinct()`? What would you be counting if you left it out?
+>
+> Distinct makes it so that one row per unique race id/driver id pair. Without distinct you would just be including the original tables' rows, and even could double count a driver's participation
+
+Now find the combinations that appear in the results data but *not* in the qualifying data.
+
+```{r}
+#| echo: false
+
+unmatched <- results_combos |> 
+  anti_join(qualifying_combos, by = join_by(raceId, driverId))
+
+nrow(unmatched)
+nrow(unmatched) / nrow(results_combos)
+```
+
+> How many are there?
+>
+> There are 16,176 race/driver combinations that appear in the data but have no matching qualifying record.
+
+> What proportion of all result combinations is that?
+>
+> 64.4%
+
+Attach the race year to those unmatched combinations, then plot the count of unmatched combinations by year.
+
+```{r}
+#| echo: false
+
+unmatched_by_year <- unmatched |> 
+  left_join(races_small, by = join_by(raceId))
+
+unmatched_by_year |> 
+  count(year) |> 
+  ggplot(aes(x = year, y = n)) +
+  geom_col()
+```
+
+> Are the unmatched records spread evenly across Formula 1 history?
+>
+> No, most unmatched records are from 1950s-2000s, with it peaking in the 1990s. Almost disappears after 2003ish.
+
+> Roughly when does substantial qualifying coverage begin?
+>
+> Before 2003, there were tons of races having no matching qualifying record. After 2003, almost every race has matching qualifying record. If comparing qualifying position and finishing position, we would only look at 2003 and later.
+
+Do not speculate about *why* particular records are missing unless the documentation supports it. Just describe it.
+
+## The payoff
+
+Using only the records where you have both a qualifying position and a finishing order, make a plot showing the relationship between the two.
+
+```{r}
+#| echo: false
+
+qualifying_results |> 
+  filter(!is.na(position), !is.na(positionOrder)) |> 
+  ggplot(aes(x = position, y = positionOrder)) +
+  geom_point(alpha = 0.2) +
+  geom_smooth(method = "lm") +
+  labs(x = "Qualifying Position", y = "Finishing Order")
+  
+```
+
+> Describe what you see in two or three sentences.
+>
+> There is a clear positive linear relationship between qualifying position and finishing position, drivers who qualify near the front tend to finish near the front and drivers who ten to qualify towards the back finish in the back. With that being said, there is a lot of spread around the trend line, especially in the middle of the chart. So qualifying position is a strong predictor of finishing position.
+
+## What this means for your question
+
+You opened by asking whether qualifying performance is related to finishing performance. You now know something about what that question can actually be asked of.
+
+> If you compare qualifying position to finishing order using only records that have both, what population are you actually describing?
+>
+> Because qualifying data doesn't really show up until around 2003, keeping only the records with both a qualifying spot and a finishing spot will narrow it down to modern F1. So even though the dataset covers decades of racing, the comparison we're making is mostly about the last 20 years.
+
+## Disclosure appendix
+
+> What did you try first? Include the code you wrote and the actual error message, or a clear description of the problem if there was no error.
+>
+> No error or problem, but at first I was confused about the columns position and positionorder, I figured they were the same. Turns out position has N/A results for drivers who did not complete the race.
+
+> If you used an AI system: the exact prompt, exactly what it returned, what it got wrong or left unclear, and what you changed.
+
+> If you didn't use one, say so.
+>
+> I did not use AI, followed the book.
