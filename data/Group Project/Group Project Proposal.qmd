@@ -1,0 +1,20 @@
+---
+title: "Group Project Proposal"
+format: html
+editor: visual
+Author: Aiden Byrd, Lilly Hartman, Hayden Scott
+---
+
+# **Group Project Proposal**
+
+Winter weather in our region tends to have a major strain on infrastructure, the local economy, and people’s daily lives and plans. However, snowfall in Lexington and Louisville varies drastically from year to year. One winter brings several significant snow events, while another produces only a few inches throughout the entire season. This variability makes it difficult to know what a “normal” Kentucky winter actually looks like. In this project, we seek to use historical snowfall records and current climate conditions to estimate what this year’s snow season could look like in Lexington and Louisville and compare these patterns with other regions across the United States. 
+
+Our primary question that we are looking to answer is based on historical snowfall patterns and current climate conditions, what can we expect from this year’s snow season in Lexington and Louisville? As well as, how will its timing and snowfall totals compare with other regions of the United States? Instead of relying on an existing forecast which is incorrect 20%-50% of the time, we plan to construct our own measures using patterns found in historical weather observations. This will include variables like annual snowfall totals, first measurable snowfall dates, number of snowfall days, and year-to-year variability. Multi-decade data records allow us to identify trends like unusually snowy or dry winters and seasons that experienced climate conditions similar to the current year. We plan to compare the current season with previous winters that experienced similar climate conditions and determine how Kentucky fits into broader snowfall patterns across the country. 
+
+Another major part of our analysis plan to focus on when winter begins. We want to determine the typical first measurable snowfall in Lexington and Louisville, as well as how much that date varies between years. We will then compare Kentucky with other regions/states of the country to examine how snowfall develops geographically. We also plan to investigate whether large-scale climate patterns, particularly the El Niño–Southern Oscillation (ENSO), are associated with differences in snowfall timing and accumulation.
+
+To provide context at a national level, we plan to select cities from regions with different winter climates than ours. In the Northeast, we would like to examine Syracuse, Buffalo, Boston, and New York City, where factors such as lake-effect snow and nor’easters can influence snowfall. In the Upper Midwest, we would like to examine Minneapolis, Detroit, and Milwaukee. We will also examine Denver and locations in the Rocky Mountains and Sierra Nevada to take into account how elevation and geography relate to snowfall. These comparisons will help us determine where Lexington and Louisville fit within the broader U.S. snowfall patterns.
+
+We think the best place our primary data will come from is historical weather archives maintained by the National Centers for Environmental Information (NCEI) and the National Oceanic and Atmospheric Administration (NOAA). These sources are able to provide historical weather observations that should allow us to construct snowfall measures across multiple decades. We may also incorporate variables such as temperature, latitude, elevation, and ENSO conditions if it seems fit for the questions we are trying to answer. 
+
+A problem we are anticipating is incomplete or inconsistent snowfall observations between weather stations. Stations may have missing data or different periods of available records, which will make direct comparisons difficult. The dataset could also become too large if we include too many locations and years. If this occurs, our backup plan is to narrow the project to Lexington and Louisville and a smaller selection of representative U.S. cities. In the end, our final goal is to build a historical profile that helps us estimate this coming winter’s snowfall and understand how Kentucky winter climate compares with the rest of the country. 
