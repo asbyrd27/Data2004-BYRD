@@ -1,0 +1,448 @@
+---
+title: "Weekly 4: When Do People See UFOs?"
+author: "[Aiden Byrd]"
+format:
+  html:
+    embed-resources: true
+editor: visual
+---
+
+## Overview
+
+The National UFO Reporting Center has collected tens of thousands of reports from people who saw something in the sky they couldn't explain. Each report says when it happened, where, what the object looked like, and how long it lasted.
+
+You're going to answer two questions:
+
+1.  **When do people see UFOs?** Time of day, day of the week, time of year.
+2.  **How long does a sighting last?**
+
+A few things:
+
+1.  Add `#| echo: false` to your code blocks.
+2.  Use a new block when you move to a new task.
+3.  Code goes in the blocks. **Answers go outside them**, as prose. A comment inside a code chunk is not an answer.
+4.  Keep the original columns. Every cleaned or parsed version goes in a **new** column.
+
+Due Monday at 8pm.
+
+## Your data
+
+Import `ufo_sightings.csv` and inspect it.
+
+```{r}
+#| warning: false
+#| echo: false
+
+library(tidyverse)
+ufo <- read_csv("ufo_sightings (1).csv")
+```
+
+```{r}
+#| warning: false
+#| echo: false
+
+glimpse(ufo)
+
+```
+
+> What does one row represent?
+>
+> One row represents one UFO sighting/report.
+
+> Which columns tell you *when* a sighting happened? Which tell you *how long* it lasted?
+>
+> Date_time tells you when the sighting happened. date_documented tells you when the report was documented. Encounter_length and describe_encounter_length tells us how long it lasted.
+
+> What type is `date_time`? Is it a date yet?
+>
+> Date_time is character (\<chr\>), so no, it is not a date yet, it is still text.
+
+# Part 1: When do people see UFOs?
+
+## Read the dates
+
+Look at the first several values of `date_time`.
+
+> What format does it appear to use?
+
+"01/12/1999 22:00" could be January 12th or December 1st. You can't tell from that value alone.
+
+> Find evidence in the data itself that settles which reading is right. What would a value need to look like to rule one reading out? Write the code that finds those values.
+>
+> The second number can be greater than 12, so it must represent the day of the month. This shows that date_time uses month/day/year format.
+>
+> ```{r}
+> #| warning: false
+> #| echo: false
+>
+> ufo |>
+>   filter(str_detect(date_time, "/2[0-9]/")) |>
+>   select(date_time)
+> ```
+
+## Parse them
+
+Create a new column, `observed_at`, containing the parsed date and time. Keep `date_time`.
+
+```{r}
+#| warning: false
+#| echo: false
+
+ufo <- ufo |>
+  mutate(
+    observed_at = mdy_hm(date_time)
+  )
+```
+
+These times are local to wherever the sighting happened, e.g., Phoenix, Boston, and Anchorage, and the data doesn't record which time zone. You only need the hour, the day, and the date for this assignment, so parse **without** setting a time zone. R will label the result UTC. That isn't true either. It's just a consistent label.
+
+> Why would setting `tz = "America/New_York"` for every sighting be a false claim?
+>
+> The sightings happened in different places, so they would not all have the New York time zone.
+
+> Since you're only using hour of day and calendar date, does the label change any of your answers? When would it?
+>
+> No. The time zone does not matter for what we are doing. It would matter if we were comparing times from different locations.
+
+## Check what you got
+
+Report three numbers:
+
+```{r}
+#| echo: false
+
+
+ufo |>
+  summarise(
+    missing_before = sum(is.na(date_time)),
+    missing_after = sum(is.na(observed_at)),
+    newly_missing = sum(!is.na(date_time) & is.na(observed_at))
+  )
+```
+
+- how many `date_time` values were missing before parsing Zero
+- how many `observed_at` values are missing after Zero
+- how many **non-missing** values became missing during parsing Zero
+
+> Why is that third number a different question from the second?
+>
+> The second counts all missing values after parsing, the third only counts values that became missing because of parsing.
+
+If any records failed to parse, look at them alongside their other columns, not just the date string.
+
+> Do they look malformed? Do they have anything in common? Would you fix them or leave them out? Why?
+>
+> There were no parsing failures, so there are no failed records to fix.
+
+> Zero parsing failures would tell you the parse *ran*. Name one way a parse could be wrong without producing any missing values.
+>
+> The month and day could be switched and R could still have successfully parsed the dates.
+
+Find the earliest and latest sightings.
+
+```{r}
+#| echo: false
+
+ufo |>
+  summarise(
+    earliest = min(observed_at, na.rm = TRUE),
+    latest = max(observed_at, na.rm = TRUE)
+  )
+```
+
+```{r}
+#| echo: false
+
+ufo |>
+  filter(observed_at == min(observed_at, na.rm = TRUE))
+```
+
+> Do those dates look plausible? Look at the oldest sighting. Does anything about it surprise you?
+>
+> The dates look mostly plausible, but the oldest sighting surprised me because it was from 1906 in Vienna, Austria. It was documented much later, in 2002, and the description says it was a photo of a UFO.
+
+## So when do people see UFOs?
+
+Make a plot showing the number of sightings by hour of day.
+
+```{r}
+#| echo: false
+
+hour_counts <- ufo |>
+  count(hour = hour(observed_at))
+
+p <- ggplot(hour_counts, aes(x = hour, y = n)) +
+  geom_col()
+
+
+```
+
+> When do people see UFOs? Is that what you'd expect? Why might it look like this?
+>
+> I found that most UFO sightings happen around midnight. There are also a lot of sightings late at night and early in the morning.
+
+Now look at day of the week and month.
+
+```{r}
+#| echo: false
+
+ufo |>
+  count(day = wday(observed_at, label = TRUE), sort = TRUE)
+```
+
+```{r}
+#| echo: false
+
+ufo |>
+  count(month = month(observed_at, label = TRUE), sort = TRUE)
+```
+
+> Which days and months have the most sightings? What might explain that?
+>
+> ```{r}
+> ufo |>
+>   count(day = wday(observed_at, label = TRUE), sort = TRUE)
+> ```
+>
+> > Saturday has the most sightings with 14,062, and July has the most out of the months with 9,542. This could be because more people are outside at night on weekends and during the summer.
+
+Ignore the year and count sightings by calendar day, so month and day together.
+
+```{r}
+#| echo: false
+
+ufo |>
+  count(
+    month = month(observed_at),
+    day = day(observed_at),
+    sort = TRUE
+  )
+```
+
+> Which single day of the year has the most sightings? By how much?
+>
+> July 4th has the most sightings with 1,206 reports. The next highest is June 1st with 1,105. Difference is 101
+
+> What happens on that day?
+>
+> > July 4th is Independence Day, when there are a lot of fireworks.
+
+> So is this a dataset about UFOs? What is it actually measuring?
+>
+> It is measuring what people report as UFO sightings, which could include things like fireworks or other objects they can't identify.
+
+# Part 2: How long does a sighting last?
+
+## Look at how durations were written
+
+Count the distinct values of `described_encounter_length` and look at the most common ones.
+
+```{r}
+#| echo: false
+
+ufo |>
+  count(described_encounter_length, sort = TRUE) |>
+  print(n = 20)
+```
+
+Create a new column, `duration_clean`, that standardizes case and whitespace. Keep the original.
+
+```{r}
+#| echo: false
+
+ufo <- ufo |>
+  mutate(
+    duration_clean = described_encounter_length |>
+      str_to_lower() |>
+      str_squish())
+```
+
+> Find three different ways an exact duration is written in `duration_clean`. 5 minutes, 1 hour, and 5 min
+>
+> ```{r}
+> ufo |>
+>   count(duration_clean, sort = TRUE) |>
+>   print(n = 30)
+> ```
+
+> Find three descriptions that can't be turned into a single number, and say why. "2-3 minutes" and "1-2 minutes" cannot be turned into one number because they are ranges, also when it says "seconds", that cannot be turned into a single number either because it doesn't say
+
+## Recover exact minutes
+
+Write a regular expression that identifies descriptions reporting an exact number of minutes.
+
+```{r}
+#| echo: false
+
+minute_data <- ufo |>
+  filter(str_detect(duration_clean, "^\\d+\\s+min(ute)?s?$")) |>
+  mutate(
+    minutes = str_extract(duration_clean, "\\d+"),
+    text_seconds = as.numeric(minutes) * 60
+  )
+```
+
+"Exact" means a number, a minutes word, and **nothing else**. "about 5 minutes" and "5 minutes or so" aren't exact. Your pattern should exclude them, and it should handle the spelling variants you found above.
+
+Then filter to the matches, extract the number into a column called `minutes`, convert it to a column called `text_seconds`, and save the result as `minute_data`.
+
+> What does `str_extract()` return: a number or a string?
+>
+> A string
+
+> What are you relying on when you convert minutes to seconds?
+>
+> I am relying on 60 seconds being in one minute
+
+## Check it against `encounter_length`
+
+`encounter_length` is supposed to be the same quantity, in seconds. Compare it to your `text_seconds`.
+
+```{r}
+minute_data |>
+  summarise(
+    agree = sum(text_seconds == encounter_length, na.rm = TRUE),
+    disagree = sum(text_seconds != encounter_length, na.rm = TRUE),
+    cant_compare = sum(is.na(encounter_length))
+  )
+```
+
+> How many rows of `minute_data` agree? How many disagree? How many can't be compared?
+>
+> > 32,093 rows agree, 0 disagree, and 0 could not be compared.
+
+> If one person typed "5 minutes" and someone else separately recorded 300 seconds, would they agree every single time across tens of thousands of reports?
+>
+> > No. There could be mistakes or differences in how people recorded the times.
+
+> Did you just validate your rule, or rediscover someone else's? What does that tell you about where `encounter_length` came from?
+>
+> This means encounter_length was probably made using the written duration, which is why they match.
+
+## Seconds, too
+
+Adapt your pattern to find exact numbers of **seconds**. Extract the number and keep it in seconds. (Do hours too if you want to go further.)
+
+```{r}
+#| echo: false
+
+second_data <- ufo |>
+  filter(str_detect(duration_clean, "\\d+ seconds")) |>
+  mutate(
+    seconds = str_extract(duration_clean, "\\d+"))
+```
+
+> What did your patterns miss? Find descriptions that clearly contain a duration but that neither pattern caught.
+>
+> My patterns missed hours, ranges, and some different ways of writing minutes and seconds.
+>
+> ```{r}
+> #| echo: false
+>
+> ufo |>
+>   filter(
+>     !str_detect(duration_clean, "minutes|minute|seconds|second")
+>   ) |>
+>   count(duration_clean, sort = TRUE) 
+> ```
+
+## The ones you can't resolve
+
+Find the descriptions that contain a range with values separated by a hyphen. Count them and look at the most common.
+
+```{r}
+#| echo: false
+
+ufo |>
+  filter(str_detect(duration_clean, "\\d+-\\d+")) |>
+  count(duration_clean, sort = TRUE) 
+```
+
+Consider "2-3 minutes." You could call it 120 seconds, 150, or 180.
+
+> What assumption would each choice require? Is any of them defensible from the text alone?
+>
+> > 120 uses 2 minutes, 150 uses the middle of 2 and 3 mins, and 180 uses 3 minutes. We can't tell which is right from the text.
+>
+> Now compare those range descriptions to `encounter_length`.
+>
+> ```{r}
+> #| echo: false
+>
+> range_data |>
+>   select(duration_clean, encounter_length) |>
+>   count(duration_clean, encounter_length, sort = TRUE)
+> ```
+
+> Is there a consistent rule connecting the text to the number? What is it? Where is it documented?
+>
+> Yes, it uses the higher number in the range. I don't see anywhere that this rule is documented.
+
+> What proportion of all reports contain a range?
+>
+> 11.16%
+>
+> ```{r}
+> #| echo: false
+>
+> nrow(range_data) / nrow(ufo) * 100
+> ```
+
+> If you computed a median sighting length from `encounter_length`, in which direction would it be wrong, and why?
+>
+> > The median would probably be too high because encounter_length uses the higher number when a duration is given as a range.
+
+## The longest sighting
+
+Find the report with the largest `encounter_length`. Read its `described_encounter_length` and its `description`.
+
+```{r}
+#| echo: false
+
+ufo |>
+  filter(encounter_length == max(encounter_length, na.rm = TRUE)) |>
+  select(encounter_length, described_encounter_length, description)
+```
+
+> I would question the 31-year sighting because it seems unrealistic. I would leave it out when finding a typical sighting length because it could throw off the results.
+
+# Bringing it together
+
+A friend hears you've been working with UFO data and asks: *when do people see UFOs, and how long does a sighting usually last?*
+
+Write a short answer, roughly 200 words, that:
+
+- answers both questions
+- says what this data is actually measuring
+- tells them the one or two things they'd need to know before trusting your numbers
+
+Based on the data, people report UFO sightings most often at night, especially around midnight. Saturday had the most sightings out of any day of the week, and July had the most out of any month. This makes sense because more people may be outside at night on weekends and during the summer. July 4th also had the most sightings of any single calendar day, with 1,206 reports. This is probably related to fireworks and shows that this data is really measuring **reported UFO sightings**, not confirmed UFOs.
+
+Figuring out how long a typical sighting lasts is more difficult. The duration data is not always exact because people wrote their answers in many different ways. Some gave exact times like “5 minutes,” while others gave ranges like “2-3 minutes.” About 11% of the reports used ranges, and the encounter_length column used the higher numbers from those ranges. There were also extreme values, including one sighting reported as lasting 31 years. Because of these issues, I would be careful using encounter_length to calculate a typical sighting without cleaning the data. Overall, the data can show patterns in what people report, but it does not prove that the sightings were all actually UFOs.
+
+# Disclosure appendix
+
+> What did you try first? Include the code you wrote and the actual error message, or a clear description of the problem if there was no error.
+>
+> In the "Seconds too" section, I tried to first do something like this but it seemed like a ton of regax symbols and I found an easier way to do it (the second block below). Found out you could do this through the help tap too.
+>
+> ```{r}
+> ufo |>
+>   filter(
+>     !str_detect(duration_clean, ....),
+>     !str_detect(duration_clean, .......)
+>   ) |>
+>   count(duration_clean, sort = TRUE) |>
+> ```
+
+> ```{r}
+> ufo |>
+>   filter(
+>     !str_detect(duration_clean, "minutes|minute|seconds|second")
+>   ) |>
+>   count(duration_clean, sort = TRUE) 
+> ```
+>
+> If you used an AI system: the exact prompt, exactly what it returned, what it got wrong or left unclear, and what you changed.
+
+> If you didn't use one, say so. I did not
