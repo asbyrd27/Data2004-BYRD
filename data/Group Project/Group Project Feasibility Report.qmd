@@ -1,0 +1,19 @@
+---
+title: "Group Project Feasibility Report"
+format: html
+editor: visual
+---
+
+## Group Project Feasibility Report
+
+Our chosen topic for the group project is to look at what a normal winter looks like in Kentucky and how the snowfall varies from year to year. Originally, our idea was to use historical snowfall patterns to predict what the upcoming winter would look like in multiple locations. After receiving feedback on the proposal, we decided to focus more on understanding snowfall trends rather than creating our own predictions. Using that information, we will also be able to compare snowfall patterns with other cities. 
+
+For our data, we looked into a few historical weather record bases like the National Oceanic and Atmospheric Administration (NOAA) and the National Centers for Environmental Information (NCEI). From NOAA's online Climate Data, we found information on historical weather observations, including snowfall, temperature, and precipitation. Another dataset that has the potential to be useful is the Global Historical Climatology Network Daily (GHCN-Daily), because it has some daily weather observations from places across the United States. We believe that it will be a good source of data and information because it will answer our research question with the snowfall measurements we need. 
+
+We think the grain of our dataset will be one chosen weather station’s observations for one day. The observations could include the date, temperature, station location, snow depth, and/or snowfall amount. Since the data is recorded daily, we will be able to group observations into categories like seasons, months, and/or years to calculate totals and averages. We can use this to see how frequently snowfall occurs, not just looking at the total accumulation of snow at a certain time. By using the daily observations, we would be able to calculate and identify the measurable snowfall of each year/season, total snowfall for each winter, and figure out how many days in the winter season experienced snowfall. With the findings, we will use them to compare measurements from many different locations and years. 
+
+A potential issue we have anticipated is if there are missing or inconsistent snowfall observations. Different weather stations may not keep records the same way or even complete them with the same standards. This could make it difficult to compare the snowfall totals, specifically when looking at different cities or times. Each city may record things differently, and there are differences in how meteorologists understand things now versus years ago.
+
+If we happen to run into these issues, we plan to keep narrowing down the number of places/cities we are looking into, as well as the number of years we are looking at. We could also potentially look at annual snowfall totals instead of trying to analyze the aspects of the snowfall timing. Ultimately, we believe the NOAA and GHCH Daily data will give us realistic starting points for the project and help us better understand how Kentucky’s winters have changed over time.    
+
+## 
