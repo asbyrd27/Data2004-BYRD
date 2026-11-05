@@ -212,8 +212,14 @@ then_now |>
 
 # a new name isn't always a new park: Safeco Field became T-Mobile Park, and
 # it's the same building. how could you tell a renamed park from a new one
-# using this data? try it. what did you find?
+# using this data? try it. what did you find? 
+# 23 teams had different stadium names between 2000 and 2026, we compared the venue IDs, if the ID stayed the same but the name changed, it was likely renamed. 
 
+
+then_now |>
+  filter(venue_2000 != venue_2026) |>
+  select(name_2026, venue_2000, venue_2026,
+         venue_id_2000, venue_id_2026)
 
 
 # the editor also wants to know what today's parks are like. MLB's API won't
@@ -226,21 +232,33 @@ then_now |>
 # get the page and save it to data/raw/mlb_stadiums.html, then read the saved
 # file into R and call it stadium_page.
 
+url <- "https://en.wikipedia.org/wiki/List_of_current_Major_League_Baseball_stadiums"
 
+request(url) |>
+  req_user_agent("Aiden Byrd, DATA 2004 class, Transylvania University") |>
+  req_perform(path = "data/raw/mlb_stadiums.html")
 
-# when was the page last edited? put it in your README.
+stadium_page <- read_html("data/raw/mlb_stadiums.html")
+# when was the page last edited? put it in your README. This page was last edited on 13 September 2026, at 20:03 (UTC).
+stadium_page |>
+  html_elements("#footer-info-lastmod") |>
+  html_text2()
 
+# get all the data tables as tibbles. how many are there? three
+tables <- stadium_page |>
+  html_elements("table.wikitable") |>
+  html_table()
 
-# get all the data tables as tibbles. how many are there?
-
-
-# which one is the current stadiums table? check before you trust a number.
+length(tables)
+# which one is the current stadiums table? check before you trust a number. table one 
 # call it stadiums_raw.
+stadiums_raw <- tables[[1]]
 
-
+glimpse(stadiums_raw)
 # look at Name, Capacity, and Distance to center field. what's in them that
 # isn't a name or a number?
 
+#Name has extra symbols like ‡. Capacity has commas and footnotes like [1],  Distance to center field has text like "feet", metric conversions, and footnotes.
 
 # clean it. keep the originals; make new columns.
 # the park name, without the symbols:
@@ -250,30 +268,51 @@ stadiums_raw |>
   select(Name, park)
 
 # what does [‡†] match? (what does [ ] mean in regex?)
+# [‡†] matches either the ‡ or † symbol. The brackets mean match any one character inside them.
 
 
 # now make stadiums with: park, team, capacity (a number), opened (an
 # integer), center_ft (a number), and roof.
 # (hint: parse_number() pulls the first number out of text like "41,900" or
 #  "400 feet (122 m)")
+stadiums <- stadiums_raw |>
+  mutate(
+    park = str_squish(str_remove_all(Name, "[‡†]")),
+    team = Team,
+    capacity = parse_number(Capacity),
+    opened = as.integer(Opened),
+    center_ft = parse_number(`Distance to center field`),
+    roof = `Roof type`
+  ) |>
+  select(park, team, capacity, opened, center_ft, roof)
 
-
+glimpse(stadiums)
 # did R give you a warning? don't skip it. which parks got NA, and what does
 # their original cell say? (hint: go back to stadiums_raw)
-
 
 # if you ignored that warning, what would happen when you look for the oldest
 # park later? (this is how the last intern got fired.)
 
+#If we ignored the warning, three stadiums would have missing opening years. We could miss Wrigley Field when looking for the oldest stadium.
 
 # look at the Team column too. is anything stuck to the names?
-
+#some team names have [nb 3]
 
 # fix both. thursday's footnote pattern will help with one of them.
 # check that nothing is NA anymore.
 
+stadiums <- stadiums_raw |>
+  mutate(
+    park = str_squish(str_remove_all(Name, "[‡†]")),
+    team = str_squish(str_remove(Team, "\\[.*\\]")),
+    capacity = parse_number(Capacity),
+    opened = as.integer(parse_number(Opened)),
+    center_ft = parse_number(`Distance to center field`),
+    roof = `Roof type`
+  ) |>
+  select(park, team, capacity, opened, center_ft, roof)
 
-
+glimpse(stadiums)
 # now you have two tables from two places. the editor wants one.
 
 # join stadiums to teams_2026 by park name. which parks DON'T match?
@@ -281,32 +320,60 @@ stadiums_raw |>
 
 
 # why didn't they match? look closely at both spellings.
+#The two parks didn't match because their names are written differently in Wikipedia and the MLB API.
 
+stadiums |>
+  anti_join(teams_2026, join_by(park == venue)) |>
+  select(park, team)
 
-# now try team name instead. which don't match?
-
+# now try team name instead. which don't match? all 30 teams match 
+stadiums |>
+  anti_join(teams_2026, join_by(team == name)) |>
+  select(park, team)
 
 # which key would you trust, and why? what would you do with the misses?
 # write your decision in the README.
+#I would trust team names more than park names for this join because stadium names can be spelled differently between sources.
 
+# make parks: every 2026 team with its park's details. how many rows? 30
+# should it be 30? yes, 30 MLB teams 
 
-# make parks: every 2026 team with its park's details. how many rows?
-# should it be 30?
+parks <- teams_2026 |>
+  left_join(stadiums, join_by(name == team))
 
+glimpse(parks)
 
+nrow(parks)
 
-# time to answer the editor.
+parks |>
+  filter(is.na(opened))
 
-# what are the three oldest parks? the three newest?
+# time to answer the editor.00
 
+# what are the three oldest parks? the three newest? three oldest in order olderst to younger are Fenway Park, then Wrigley, then dodger stadium
+#Three newwest in order from youngest to older are Globe Life Field, Truist park, and loanDepot park
 
-# how many teams play in a park that opened after 2000?
+parks |>
+  arrange(opened) |>
+  select(park, opened) |>
+  slice_head(n = 3)
 
+parks |>
+  arrange(desc(opened)) |>
+  select(park, opened) |>
+  slice_head(n = 3)
+# how many teams play in a park that opened after 2000? 13
+
+parks |>
+  filter(opened > 2000) |>
+  count()
 
 # the Athletics are playing in a minor league park while a Las Vegas
 # stadium is built. what does "current stadium" mean, and who decides? how
 # would your answers change if you'd scraped this page a year ago?
 
+#current stadium is where a team is playing right now, even if temporary.  Wikipedia editors decide what is listed,
+#If we scraped the page a year ago, the stadium information could be different because teams can move cities or change stadiums
 
 
 # save your final table. this is what you hand the editor.
