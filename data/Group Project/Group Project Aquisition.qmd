@@ -1,0 +1,111 @@
+---
+title: "Group Project Aquisition"
+author: "Aiden Byrd, Hayden Scott, Lilly Hartman"
+format: html
+editor: visual
+---
+
+## Group Project Aquisition
+
+Our group is investigating what a normal Kentucky winter looks like and how snowfall varies from year to year. We are primarily focusing on Lexington and Louisville, Kentucky, while comparing their snowfall patterns to Buffalo, New York, and Minneapolis, Minnesota. For this part of the project, we are acquiring historical daily weather data that will later allow us to calculate seasonal snowfall totals, first snowfall dates, and the number of days with measurable snowfall. We are not analyzing the snowfall patterns yet, but establishing a reproducible method for obtaining the data.
+
+Our data comes from the National Oceanic and Atmospheric Administration (NOAA) and the National Centers for Environmental Information (NCEI). Specifically, we are using the Global Historical Climatology Network Daily (GHCN-Daily) dataset. The data is available from: <https://www.ncei.noaa.gov/pub/data/ghcn/daily/> We downloaded six raw files: two metadata files and four weather station files. The metadata files identify weather stations and show which types of observations are available. The station files contain historical daily weather observations.
+
+```{r}
+library(tidyverse)
+
+
+stations <- tibble(
+  city = c("Lexington", "Louisville",
+           "Buffalo", "Minneapolis"),
+  state = c("KY", "KY", "NY", "MN"),
+  station_id = c("USW00093820", "USW00093821",
+                 "USW00014733", "USW00014922"),
+  file = c("Lex KY.dly", "LOU KY.dly",
+           "Buff NY.dly", "Minneapolis, MN.dly")
+)
+
+stations
+```
+
+We selected two Kentucky cities and two cities from other regions of the United States. This will allow us to compare Kentucky snowfall patterns with areas that typically experience different winter conditions.
+
+## Data Acquisition
+
+Our files were originally downloaded manually from NOAA's public directory. The following code allows the same files to be acquired directly through R. Each station has a unique station ID that identifies its daily weather records. The files are stored in the `data/Group Project/Raw GP` folder.
+
+```{r}
+
+
+# Folder where we will save our data
+dir.create("data/Group Project/Raw GP",
+           recursive = TRUE,
+           showWarnings = FALSE)
+
+# Download NOAA station information
+download.file(
+  "https://www.ncei.noaa.gov/pub/data/ghcn/daily/ghcnd-stations.txt",
+  "data/Group Project/Raw GP/ghcnd-stations.txt"
+)
+
+# Download NOAA inventory information
+download.file(
+  "https://www.ncei.noaa.gov/pub/data/ghcn/daily/ghcnd-inventory.txt",
+  "data/Group Project/Raw GP/ghcnd-inventory.txt"
+)
+
+# Lexington, Kentucky
+download.file(
+  "https://www.ncei.noaa.gov/pub/data/ghcn/daily/all/USW00093820.dly",
+  "data/Group Project/Raw GP/Lex KY.dly"
+)
+
+# Louisville, Kentucky
+download.file(
+  "https://www.ncei.noaa.gov/pub/data/ghcn/daily/all/USW00093821.dly",
+  "data/Group Project/Raw GP/LOU KY.dly"
+)
+
+# Buffalo, New York
+download.file(
+  "https://www.ncei.noaa.gov/pub/data/ghcn/daily/all/USW00014733.dly",
+  "data/Group Project/Raw GP/Buff NY.dly"
+)
+
+# Minneapolis, Minnesota
+download.file(
+  "https://www.ncei.noaa.gov/pub/data/ghcn/daily/all/USW00014922.dly",
+  "data/Group Project/Raw GP/Minneapolis, MN.dly"
+)
+
+
+```
+
+## Data Verification
+
+After downloading the six files from NOAA, we checked that they were saved correctly in our raw data folder. We also inspected the original weather observations to confirm that the files contained data. This step is important because we want to make sure our acquisition method works before we begin cleaning and analyzing the data.
+
+```{r}
+
+list.files("data/Group Project/Raw GP")
+
+
+file.exists(c(
+  "data/Group Project/Raw GP/Lex KY.dly",
+  "data/Group Project/Raw GP/LOU KY.dly",
+  "data/Group Project/Raw GP/Buff NY.dly",
+  "data/Group Project/Raw GP/Minneapolis, MN.dly"
+))
+
+head(readLines("data/Group Project/Raw GP/Lex KY.dly"), 3)
+```
+
+## Data Reproducibility 
+
+Our data acquisition process is reproducible because all six files can be downloaded directly from NOAA using the R code provided above. Someone running our code would only need R, an internet connection, and the required packages. The code creates a folder to store the raw data and downloads each file using its NOAA URL. Since the files are publicly available, no API key or account is required.
+
+We kept the original NOAA files unchanged so that our data can be traced back to its source. Each weather station has a unique identification number, allowing someone else to locate the same observations. One limitation is that NOAA may update its historical records over time, meaning future downloads could contain additional observations or corrections. However, our original files will be included with the project so that the data we acquired can still be accessed and examined.
+
+## Next Steps
+
+For the next stage of our project, we will begin cleaning and organizing the raw NOAA data into a format that we can analyze in R. We will focus on snowfall measurements, identify missing observations, and organize the data by winter season rather than calendar year. Once the data is cleaned, we will calculate seasonal snowfall totals, average snowfall, and first measurable snowfall dates for each city. This will allow us to compare Lexington and Louisville with Buffalo and Minneapolis and better understand what a normal Kentucky winter looks like and how much snowfall varies from year to year.
