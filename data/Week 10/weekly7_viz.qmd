@@ -1,0 +1,289 @@
+---
+title: "Weekly 7: Who Visits the National Parks?"
+author: "Aiden Byrd"
+format:
+  html:
+    embed-resources: true
+editor: visual
+---
+
+## Overview
+
+In class, we started from a default chart and asked one question about every change: **what does this choice make the reader see?**
+
+This week you'll make those decisions yourself, on new data: visits to the U.S. National Parks, from the National Park Service, as collected for TidyTuesday. Kentucky has one of the parks in the data: Mammoth Cave.
+
+The question: **Where does Mammoth Cave sit among the National Parks?**
+
+This weekly is about **visualization judgment**. You'll do a little cleaning to get there, but the point is the charts and your reasons for them.
+
+A few things:
+
+1.  Add `#| echo: false` to your code blocks.
+2.  Use a new block when you move to a new task.
+3.  Code goes in the blocks. **Answers go outside them**, as prose. A comment inside a code chunk is not an answer.
+4.  Save the raw data to a file **once**, then work from the file. After it's saved, add `#| eval: false` to the block that downloads it.
+5.  Every chart you hand in should use a colorblind-safe palette, if it uses color at all.
+
+Due Monday, November 9 at 8pm.
+
+# Part 1: Get the data, and know what you're plotting
+
+The data is here:
+
+`https://raw.githubusercontent.com/rfordatascience/tidytuesday/master/data/2019/2019-09-17/national_parks.csv`
+
+Read it in and save a copy to `data/raw/national_parks.csv`. Then read your saved copy and call it `parks_raw`.
+
+```{r}
+#| warning: false
+#| echo: false
+#| eval: false 
+
+library(tidyverse)
+
+url <- "https://raw.githubusercontent.com/rfordatascience/tidytuesday/master/data/2019/2019-09-17/national_parks.csv"
+
+dir.create("data/raw", recursive = TRUE, showWarnings = FALSE)
+
+download.file(url, "data/raw/national_parks.csv")
+
+
+```
+
+```{r}
+#| warning: false
+#| echo: false
+
+library(tidyverse)
+
+
+parks_raw <- read_csv("data/raw/national_parks.csv")
+
+glimpse(parks_raw)
+```
+
+> What type is `year`? Why isn't it numeric?
+>
+> A character, it contains text values such as "total"
+
+```{r}
+#| warning: false
+#| echo: false
+
+parks_raw |>
+  count(year, sort = TRUE)
+```
+
+> Why would leaving the `Total` rows in create a problem for an analysis of annual visitation?
+>
+> The total rows combine visitation across multiple years, keeping them would cause us to double count.
+
+> How many kinds of `unit_type` are there? For this assignment, keep only `National Park` records and annual observations. Call the result `np`, and make `year` a number.
+>
+> 30 different unit type groups
+
+```{r}
+#| warning: false
+#| echo: false
+
+parks_raw |>
+  count(unit_type)
+
+np <- parks_raw |>
+  filter(unit_type == "National Park",
+         year != "Total") |>
+  mutate(year = as.integer(year))
+
+glimpse(np)
+```
+
+> Before we visualize anything, check whether one row is one park in one year.
+
+```{r}
+#| warning: false
+#| echo: false
+
+np |>
+  count(unit_code, year) |>
+  filter(n > 1)
+```
+
+You should find one park that appears twice in the same year. Here's the cleaning decision for it; run this:
+
+```{r}
+#| warning: false
+
+np <- np |>
+  distinct(unit_code, year, .keep_all = TRUE)
+```
+
+> After that cleaning, what does one row represent? How many parks are represented? What years does the file cover?
+>
+> One row represents one National Park in a specific year, there are 60 unique National Parks in the data set, years range from 1904-2016
+
+```{r}
+#| warning: false
+#| echo: false
+
+np |>
+  count(unit_code, year) |>
+  filter(n > 1)
+```
+
+> Why does the ending year matter for the claims you make later?
+>
+> We do not want to assume the data goes all the way up to 2026 or anything.
+
+# Part 2: Start with the obvious chart
+
+Your audience wants to know how the National Parks compared in 2016.
+
+```{r}
+#| warning: false
+#| echo: false
+
+
+parks_2016 <- np |>
+  filter(year == 2016)
+
+parks_2016
+```
+
+> Make the most obvious bar chart: park on the x-axis and 2016 visitors on the y-axis. Don't improve it yet.
+
+```{r}
+#| warning: false
+#| echo: false
+
+
+parks_2016 |>
+  ggplot(aes(x = parkname, y = visitors)) +
+  geom_col()
+```
+
+> Is the chart technically correct? What makes it difficult to use?
+>
+> It is correct because it shows the number of visitors for each National Park in 2016, however, it is very hard to read. The park names overlap on the x axis and the parks are not ordered by visitation.
+
+# Part 3: Make the comparison readable
+
+> Revise the chart so the park names are readable and the ordering helps the reader compare visitation.
+
+```{r}
+#| warning: false
+#| echo: false
+
+parks_2016 |>
+  filter(!is.na(parkname)) |>
+  ggplot(aes(x = reorder(parkname, visitors), y = visitors)) +
+  geom_col() +
+  coord_flip() +
+  scale_y_continuous(labels = scales::label_comma()) +
+  labs(
+    title = "National Park Visitation in 2016",
+    x = "National Park",
+    y = "Number of Visitors"
+  )
+```
+
+> Why put park names on the y-axis instead of the x-axis?
+>
+> Putting them on the Y axis makes it easier to read because they don't overlap like they did on the X.
+
+> Why reorder the parks by visitors?
+>
+> Reordering the parks by visitors makes it easier to compare them and see which parks have the most and least visitors
+
+> Should every park get its own color?
+>
+> No I think that would make the chart too hard to understand
+
+# Part 4: A real visualization problem
+
+Mammoth Cave is the local park we care about. First, find where it ranks in 2016.
+
+```{r}
+#| warning: false
+#| echo: false
+
+parks_2016 |>
+  filter(!is.na(parkname)) |>
+  arrange(desc(visitors)) |>
+  mutate(rank = row_number()) |>
+  filter(parkname == "Mammoth Cave") |>
+  select(parkname, visitors, rank)
+```
+
+Now the design problem:
+
+> A chart of only the top 10 parks makes Mammoth Cave disappear. A chart with 60 equally emphasized parks makes the reader work too hard. Create one visualization that helps a reader understand where Mammoth Cave sits relative to the other National Parks.
+
+There is no one right chart here. Make the one you can defend.
+
+```{r}
+#| warning: false
+#| echo: false
+
+
+parks_2016 |>
+  filter(!is.na(parkname)) |>
+  mutate(highlight = if_else(parkname == "Mammoth Cave",
+                             "Mammoth Cave", "Other Parks")) |>
+  ggplot(aes(x = reorder(parkname, visitors),
+             y = visitors, fill = highlight)) +
+  geom_col() +
+  coord_flip() +
+  scale_fill_manual(values = c(
+    "Mammoth Cave" = "#0072B2",
+    "Other Parks" = "#E69F00")) +
+  scale_y_continuous(labels = scales::label_comma()) +
+  labs(
+    title = "Where Does Mammoth Cave Rank?",
+    subtitle = "National Park Visitation in 2016",
+    x = "National Park",
+    y = "Number of Visitors",
+    fill = NULL
+  ) +
+  theme(axis.text.y = element_text(size = 7))
+
+
+```
+
+# Part 5: Defend the choices
+
+> What should the reader notice first when they look at your final chart?
+>
+> They should notice the highlighted Mammoth Cave in blue and how it ranks compared to other national parks.
+
+> Name two visualization choices you made deliberately. For each one, explain what that choice helps the reader see.
+>
+> I used horizontal bars so the names would be easier to read instead of overlapping on the X axis, I also used different colors to highlight Mammoth Cave and make it stand out.
+
+> Name one visualization choice you considered but rejected. Why did you reject it?
+>
+> I considered using a vertical bar chart but decided against it because the park names would overlap and be difficult to read on the X axis.
+
+> What does your chart support saying? What does it **not** support saying?
+>
+> The chart shows that Mammoth Cave ranks 29th in 2016 nationally with 586,514 visitors. This chart does not support where Mammoth Cave ranks today.
+
+# Bringing it together
+
+> In 3–4 sentences, answer the question for your reader: where does Mammoth Cave sit among the National Parks? Include one number, one interpretation, and one limitation.
+>
+> Mammoth Cave ranked 29th out of 60 National Parks in 2016, with 586,514 visitors. This puts it around the middle of the rankings, showing that it had more visitors than about half of the other parks. While Mammoth Cave wasn't one of the most visited parks, it still attracted a significant number of visitors. However, this data only goes through 2016, so we can't assume its ranking is the same today.
+
+# Disclosure appendix
+
+> What did you try first? Include the code you wrote and the actual error message, or a clear description of the problem if there was no error.
+>
+> No actual coding errors, but couldn't get the csv file to save in the right folder or place for a while. I had to get my path and all that with getwd and file.exists
+>
+> If you used an AI system: the exact prompt, exactly what it returned, what it got wrong or left unclear, and what you changed.
+
+> If you didn't use one, say so. I did not
+
+# Before you submit
+
+Render in a clean session: restart R, then render. Commit and push the `.qmd`, the `.html`, **and** your saved `.csv`.
