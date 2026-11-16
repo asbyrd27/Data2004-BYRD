@@ -1,0 +1,1860 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml" lang="en" xml:lang="en"><head>
+
+<meta charset="utf-8">
+<meta name="generator" content="quarto-1.10.18">
+
+<meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
+
+<meta name="author" content="Aiden Byrd, Hayden Scott, Lilly Hartman">
+
+<title>Group Project: Wrangling + Q/A</title>
+<style>
+/* Default styles provided by pandoc.
+** See https://pandoc.org/MANUAL.html#variables-for-html for config info.
+*/
+span.smallcaps{font-variant: small-caps;}
+div.columns{display: flex; gap: 1.5em;}
+div.column{flex: auto;}
+@media screen {
+div.columns{gap: min(4vw, 1.5em);}
+div.column{overflow-x: auto;}
+}
+div.hanging-indent{margin-left: 1.5em; text-indent: -1.5em;}
+ul.task-list{list-style: none;}
+ul.task-list li input[type="checkbox"] {
+  width: 0.8em;
+  margin: 0 0.8em 0.2em -1em; /* quarto-specific, see https://github.com/quarto-dev/quarto-cli/issues/4556 */ 
+  vertical-align: middle;
+}
+/* CSS for syntax highlighting */
+html { -webkit-text-size-adjust: 100%; }
+pre > code.sourceCode { white-space: pre; position: relative; }
+pre > code.sourceCode > span { display: inline-block; line-height: 1.25; }
+pre > code.sourceCode > span:empty { height: 1.2em; }
+.sourceCode { overflow: visible; }
+code.sourceCode > span { color: inherit; text-decoration: inherit; }
+div.sourceCode { margin: 1em 0; }
+pre.sourceCode { margin: 0; }
+@media screen {
+div.sourceCode { overflow: auto; }
+}
+@media print {
+pre > code.sourceCode { white-space: pre-wrap; }
+pre > code.sourceCode > span { text-indent: -5em; padding-left: 5em; }
+}
+pre.numberSource code
+  { counter-reset: source-line 0; }
+pre.numberSource code > span
+  { position: relative; left: -4em; counter-increment: source-line; }
+pre.numberSource code > span > a:first-child::before
+  { content: counter(source-line);
+    position: relative; left: -1em; text-align: right; vertical-align: baseline;
+    border: none; display: inline-block;
+    -webkit-touch-callout: none; -webkit-user-select: none;
+    -khtml-user-select: none; -moz-user-select: none;
+    -ms-user-select: none; user-select: none;
+    padding: 0 4px; width: 4em;
+  }
+pre.numberSource { margin-left: 3em;  padding-left: 4px; }
+div.sourceCode
+  {   }
+@media screen {
+pre > code.sourceCode > span > a:first-child::before { text-decoration: underline; }
+}
+</style>
+
+
+<script src="Group Project Data Wrangling_files/libs/clipboard/clipboard.min.js"></script>
+<script src="Group Project Data Wrangling_files/libs/quarto-html/quarto.js" type="module"></script>
+<script src="Group Project Data Wrangling_files/libs/quarto-html/tabsets/tabsets.js" type="module"></script>
+<script src="Group Project Data Wrangling_files/libs/quarto-html/popper.min.js"></script>
+<script src="Group Project Data Wrangling_files/libs/quarto-html/tippy.umd.min.js"></script>
+<script src="Group Project Data Wrangling_files/libs/quarto-html/anchor.min.js"></script>
+<link href="Group Project Data Wrangling_files/libs/quarto-html/tippy.css" rel="stylesheet">
+<link href="Group Project Data Wrangling_files/libs/quarto-html/quarto-syntax-highlighting-64a204ab8560d761af7679ceaba22944.css" rel="stylesheet" id="quarto-text-highlighting-styles">
+<script src="Group Project Data Wrangling_files/libs/bootstrap/bootstrap.min.js"></script>
+<link href="Group Project Data Wrangling_files/libs/bootstrap/bootstrap-icons.css" rel="stylesheet">
+<link href="Group Project Data Wrangling_files/libs/bootstrap/bootstrap-215b371544c282197b31c8aa00ce3677.min.css" rel="stylesheet" append-hash="true" id="quarto-bootstrap" data-mode="light">
+
+
+</head>
+
+<body class="fullcontent quarto-light">
+
+<div id="quarto-content" class="page-columns page-rows-contents page-layout-article">
+
+<main class="content" id="quarto-document-content">
+
+<header id="title-block-header" class="quarto-title-block default">
+<div class="quarto-title">
+<h1 class="title">Group Project: Wrangling + Q/A</h1>
+</div>
+
+
+
+<div class="quarto-title-meta">
+
+    <div>
+    <div class="quarto-title-meta-heading">Author</div>
+    <div class="quarto-title-meta-contents">
+             <p>Aiden Byrd, Hayden Scott, Lilly Hartman </p>
+          </div>
+  </div>
+    
+  
+    
+  </div>
+  
+
+
+</header>
+
+
+<section id="data-wrangling" class="level2">
+<h2 class="anchored" data-anchor-id="data-wrangling">Data Wrangling</h2>
+<p>For this stage of our group project, we will be cleaning and organizing historical snowfall data collected from NOAA’s GHCN-Daily database. Our analysis will focus on snowfall records from 1995 through 2025, giving us approximately 30 years of historical weather data to examine. We will primarily focus on Lexington and Louisville, Kentucky, while comparing their snowfall patterns with Buffalo, New York, and Minneapolis, Minnesota. By examining these different regions, we hope to better understand what a normal Kentucky winter looks like and how much snowfall varies from year to year.</p>
+<p>During the wrangling process, we will organize daily snowfall observations, identify missing values, check for duplicate records, and make sure our dates and measurements are consistent. We will use the cleaned data to calculate seasonal snowfall totals and the number of snowfall days each winter, while preparing the data set to examine first measurable snowfall dates in the next stage of our project. This will allow us to compare Kentucky’s snowfall patterns with other regions of the United States using the same histori</p>
+</section>
+<section id="lexington" class="level2">
+<h2 class="anchored" data-anchor-id="lexington">Lexington</h2>
+<div class="cell">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb1"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(tidyverse)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="cell-output cell-output-stderr">
+<pre><code>Warning: package 'tidyverse' was built under R version 4.5.3</code></pre>
+</div>
+<div class="cell-output cell-output-stderr">
+<pre><code>── Attaching core tidyverse packages ──────────────────────── tidyverse 2.0.0 ──
+✔ dplyr     1.1.4     ✔ readr     2.1.5
+✔ forcats   1.0.0     ✔ stringr   1.5.2
+✔ ggplot2   4.0.0     ✔ tibble    3.3.0
+✔ lubridate 1.9.4     ✔ tidyr     1.3.1
+✔ purrr     1.1.0     
+── Conflicts ────────────────────────────────────────── tidyverse_conflicts() ──
+✖ dplyr::filter() masks stats::filter()
+✖ dplyr::lag()    masks stats::lag()
+ℹ Use the conflicted package (&lt;http://conflicted.r-lib.org/&gt;) to force all conflicts to become errors</code></pre>
+</div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb4"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb4-1"><a href="#cb4-1" aria-hidden="true" tabindex="-1"></a><span class="co">#Import Lexington weather data</span></span>
+<span id="cb4-2"><a href="#cb4-2" aria-hidden="true" tabindex="-1"></a>lexington <span class="ot">&lt;-</span> <span class="fu">read_fwf</span>(<span class="st">"Raw GP/Lex KY.dly"</span>,</span>
+<span id="cb4-3"><a href="#cb4-3" aria-hidden="true" tabindex="-1"></a>  <span class="fu">fwf_widths</span>(</span>
+<span id="cb4-4"><a href="#cb4-4" aria-hidden="true" tabindex="-1"></a>    <span class="fu">c</span>(<span class="dv">11</span>, <span class="dv">4</span>, <span class="dv">2</span>, <span class="dv">4</span>, <span class="fu">rep</span>(<span class="fu">c</span>(<span class="dv">5</span>, <span class="dv">1</span>, <span class="dv">1</span>, <span class="dv">1</span>), <span class="dv">31</span>)),</span>
+<span id="cb4-5"><a href="#cb4-5" aria-hidden="true" tabindex="-1"></a>    <span class="at">col_names =</span> <span class="cn">NULL</span>),</span>
+<span id="cb4-6"><a href="#cb4-6" aria-hidden="true" tabindex="-1"></a>  <span class="at">col_types =</span> <span class="fu">cols</span>(<span class="at">.default =</span> <span class="fu">col_character</span>()),</span>
+<span id="cb4-7"><a href="#cb4-7" aria-hidden="true" tabindex="-1"></a>  <span class="at">show_col_types =</span> <span class="cn">FALSE</span>)</span>
+<span id="cb4-8"><a href="#cb4-8" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb4-9"><a href="#cb4-9" aria-hidden="true" tabindex="-1"></a><span class="fu">glimpse</span>(lexington)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>Rows: 20,730
+Columns: 128
+$ X1   &lt;chr&gt; "USW00093820", "USW00093820", "USW00093820", "USW00093820", "USW0…
+$ X2   &lt;chr&gt; "1872", "1872", "1872", "1872", "1872", "1872", "1872", "1872", "…
+$ X3   &lt;chr&gt; "10", "10", "10", "11", "11", "11", "12", "12", "12", "01", "01",…
+$ X4   &lt;chr&gt; "TMAX", "TMIN", "PRCP", "TMAX", "TMIN", "PRCP", "TMAX", "TMIN", "…
+$ X5   &lt;chr&gt; "-9999", "-9999", "-9999", "133", "50", "0", "72", "-56", "135", …
+$ X6   &lt;chr&gt; NA, NA, NA, NA, NA, "P", NA, NA, NA, NA, NA, NA, NA, NA, "P", NA,…
+$ X7   &lt;chr&gt; NA, NA, NA, NA, NA, NA, NA, NA, NA, NA, NA, NA, NA, NA, NA, NA, N…
+$ X8   &lt;chr&gt; NA, NA, NA, "0", "0", "0", "0", "0", "0", "0", "0", "0", "0", "0"…
+$ X9   &lt;chr&gt; "-9999", "-9999", "-9999", "133", "67", "28", "89", "44", "20", "…
+$ X10  &lt;chr&gt; NA, NA, NA, NA, NA, NA, NA, NA, NA, NA, NA, NA, NA, NA, "P", NA, …
+$ X11  &lt;chr&gt; NA, NA, NA, NA, NA, NA, NA, NA, NA, NA, NA, NA, NA, NA, NA, NA, N…
+$ X12  &lt;chr&gt; NA, NA, NA, "0", "0", "0", "0", "0", "0", "0", "0", "0", "0", "0"…
+$ X13  &lt;chr&gt; "-9999", "-9999", "-9999", "94", "17", "0", "61", "-11", "0", "11…
+$ X14  &lt;chr&gt; NA, NA, NA, NA, NA, "P", NA, NA, "P", NA, NA, NA, NA, NA, NA, NA,…
+$ X15  &lt;chr&gt; NA, NA, NA, NA, NA, NA, NA, NA, NA, NA, NA, NA, NA, NA, NA, NA, N…
+$ X16  &lt;chr&gt; NA, NA, NA, "0", "0", "0", "0", "0", "0", "0", "0", "0", "0", "0"…
+$ X17  &lt;chr&gt; "-9999", "-9999", "-9999", "128", "17", "0", "61", "-33", "0", "1…
+$ X18  &lt;chr&gt; NA, NA, NA, NA, NA, "P", NA, NA, "P", NA, NA, "P", NA, NA, "P", N…
+$ X19  &lt;chr&gt; NA, NA, NA, NA, NA, NA, NA, NA, NA, NA, NA, NA, NA, NA, NA, NA, N…
+$ X20  &lt;chr&gt; NA, NA, NA, "0", "0", "0", "0", "0", "0", "0", "0", "0", "0", "0"…
+$ X21  &lt;chr&gt; "-9999", "-9999", "-9999", "89", "-9999", "53", "72", "-11", "5",…
+$ X22  &lt;chr&gt; NA, NA, NA, NA, NA, NA, NA, NA, NA, NA, NA, NA, NA, NA, "P", NA, …
+$ X23  &lt;chr&gt; NA, NA, NA, NA, NA, NA, NA, NA, NA, NA, NA, NA, NA, NA, NA, NA, N…
+$ X24  &lt;chr&gt; NA, NA, NA, "0", NA, "0", "0", "0", "0", "0", "0", "0", "0", "0",…
+$ X25  &lt;chr&gt; "-9999", "-9999", "-9999", "-9999", "39", "18", "78", "-33", "0",…
+$ X26  &lt;chr&gt; NA, NA, NA, NA, NA, NA, NA, NA, "P", NA, NA, "P", NA, NA, "P", NA…
+$ X27  &lt;chr&gt; NA, NA, NA, NA, NA, NA, NA, NA, NA, NA, NA, NA, NA, NA, NA, NA, N…
+$ X28  &lt;chr&gt; NA, NA, NA, NA, "0", "0", "0", "0", "0", "0", "0", "0", "0", "0",…
+$ X29  &lt;chr&gt; "-9999", "-9999", "-9999", "150", "28", "0", "100", "-33", "0", "…
+$ X30  &lt;chr&gt; NA, NA, NA, NA, NA, "P", NA, NA, "P", NA, NA, "P", NA, NA, "P", N…
+$ X31  &lt;chr&gt; NA, NA, NA, NA, NA, NA, NA, NA, NA, NA, NA, NA, NA, NA, NA, NA, N…
+$ X32  &lt;chr&gt; NA, NA, NA, "0", "0", "0", "0", "0", "0", "0", "0", "0", "0", "0"…
+$ X33  &lt;chr&gt; "-9999", "-9999", "-9999", "111", "50", "0", "72", "-11", "0", "3…
+$ X34  &lt;chr&gt; NA, NA, NA, NA, NA, "P", NA, NA, "T", NA, NA, "P", NA, NA, "P", N…
+$ X35  &lt;chr&gt; NA, NA, NA, NA, NA, NA, NA, NA, NA, NA, NA, NA, NA, NA, NA, NA, N…
+$ X36  &lt;chr&gt; NA, NA, NA, "0", "0", "0", "0", "0", "0", "0", "0", "0", "0", "0"…
+$ X37  &lt;chr&gt; "-9999", "-9999", "-9999", "111", "22", "0", "-11", "-72", "0", "…
+$ X38  &lt;chr&gt; NA, NA, NA, NA, NA, "P", NA, NA, "P", NA, NA, "P", NA, NA, "P", N…
+$ X39  &lt;chr&gt; NA, NA, NA, NA, NA, NA, NA, NA, NA, NA, NA, NA, NA, NA, NA, NA, N…
+$ X40  &lt;chr&gt; NA, NA, NA, "0", "0", "0", "0", "0", "0", "0", "0", "0", "0", "0"…
+$ X41  &lt;chr&gt; "-9999", "-9999", "-9999", "172", "39", "0", "-56", "-128", "0", …
+$ X42  &lt;chr&gt; NA, NA, NA, NA, NA, "P", NA, NA, "P", NA, NA, "P", NA, NA, "P", N…
+$ X43  &lt;chr&gt; NA, NA, NA, NA, NA, NA, NA, NA, NA, NA, NA, NA, NA, NA, NA, NA, N…
+$ X44  &lt;chr&gt; NA, NA, NA, "0", "0", "0", "0", "0", "0", "0", "0", "0", "0", "0"…
+$ X45  &lt;chr&gt; "89", "22", "0", "150", "-9999", "0", "-56", "-89", "8", "22", "-…
+$ X46  &lt;chr&gt; NA, NA, NA, NA, NA, "P", NA, NA, NA, NA, NA, "P", NA, NA, NA, NA,…
+$ X47  &lt;chr&gt; NA, NA, NA, NA, NA, NA, NA, NA, NA, NA, NA, NA, NA, NA, NA, NA, N…
+$ X48  &lt;chr&gt; "0", "0", "0", "0", NA, "0", "0", "0", "0", "0", "0", "0", "0", "…
+$ X49  &lt;chr&gt; "128", "33", "0", "-9999", "17", "41", "0", "-117", "0", "117", "…
+$ X50  &lt;chr&gt; NA, NA, NA, NA, NA, NA, NA, NA, "P", NA, NA, "P", NA, NA, NA, NA,…
+$ X51  &lt;chr&gt; NA, NA, NA, NA, NA, NA, NA, NA, NA, NA, NA, NA, NA, NA, NA, NA, N…
+$ X52  &lt;chr&gt; "0", "0", "0", NA, "0", "0", "0", "0", "0", "0", "0", "0", "0", "…
+$ X53  &lt;chr&gt; "128", "44", "0", "144", "0", "51", "39", "-78", "0", "94", "50",…
+$ X54  &lt;chr&gt; NA, NA, NA, NA, NA, NA, NA, NA, "P", NA, NA, NA, NA, NA, NA, NA, …
+$ X55  &lt;chr&gt; NA, NA, NA, NA, NA, NA, NA, NA, NA, NA, NA, NA, NA, NA, NA, NA, N…
+$ X56  &lt;chr&gt; "0", "0", "0", "0", "0", "0", "0", "0", "0", "0", "0", "0", "0", …
+$ X57  &lt;chr&gt; "89", "0", "0", "22", "-39", "0", "78", "-33", "3", "94", "61", "…
+$ X58  &lt;chr&gt; NA, NA, NA, NA, NA, "P", NA, NA, NA, NA, NA, NA, NA, NA, "P", NA,…
+$ X59  &lt;chr&gt; NA, NA, NA, NA, NA, NA, NA, NA, NA, NA, NA, NA, NA, NA, NA, NA, N…
+$ X60  &lt;chr&gt; "0", "0", "0", "0", "0", "0", "0", "0", "0", "0", "0", "0", "0", …
+$ X61  &lt;chr&gt; "150", "6", "0", "-6", "-39", "5", "44", "0", "0", "172", "78", "…
+$ X62  &lt;chr&gt; NA, NA, NA, NA, NA, NA, NA, NA, "P", NA, NA, "P", NA, NA, NA, NA,…
+$ X63  &lt;chr&gt; NA, NA, NA, NA, NA, NA, NA, NA, NA, NA, NA, NA, NA, NA, NA, NA, N…
+$ X64  &lt;chr&gt; "0", "0", "0", "0", "0", "0", "0", "0", "0", "0", "0", "0", "0", …
+$ X65  &lt;chr&gt; "194", "83", "0", "-17", "-72", "0", "33", "-39", "71", "133", "-…
+$ X66  &lt;chr&gt; NA, NA, "T", NA, NA, "P", NA, NA, NA, NA, NA, NA, NA, NA, NA, NA,…
+$ X67  &lt;chr&gt; NA, NA, NA, NA, NA, NA, NA, NA, NA, NA, NA, NA, NA, NA, NA, NA, N…
+$ X68  &lt;chr&gt; "0", "0", "0", "0", "0", "0", "0", "0", "0", "0", "0", "0", "0", …
+$ X69  &lt;chr&gt; "222", "144", "0", "17", "-72", "0", "-6", "-67", "0", "-44", "-1…
+$ X70  &lt;chr&gt; NA, NA, NA, NA, NA, "P", NA, NA, "P", NA, NA, NA, NA, NA, NA, NA,…
+$ X71  &lt;chr&gt; NA, NA, NA, NA, NA, NA, NA, NA, NA, NA, NA, NA, NA, NA, NA, NA, N…
+$ X72  &lt;chr&gt; "0", "0", "0", "0", "0", "0", "0", "0", "0", "0", "0", "0", "0", …
+$ X73  &lt;chr&gt; "172", "106", "0", "22", "-56", "0", "0", "-28", "69", "-67", "-1…
+$ X74  &lt;chr&gt; NA, NA, NA, NA, NA, "P", NA, NA, NA, NA, NA, NA, NA, NA, "P", NA,…
+$ X75  &lt;chr&gt; NA, NA, NA, NA, NA, NA, NA, NA, NA, NA, NA, NA, NA, NA, NA, NA, N…
+$ X76  &lt;chr&gt; "0", "0", "0", "0", "0", "0", "0", "0", "0", "0", "0", "0", "0", …
+$ X77  &lt;chr&gt; "167", "56", "0", "28", "-44", "0", "50", "-39", "183", "-50", "-…
+$ X78  &lt;chr&gt; NA, NA, NA, NA, NA, "P", NA, NA, NA, NA, NA, "P", NA, NA, "P", NA…
+$ X79  &lt;chr&gt; NA, NA, NA, NA, NA, NA, NA, NA, NA, NA, NA, NA, NA, NA, NA, NA, N…
+$ X80  &lt;chr&gt; "0", "0", "0", "0", "0", "0", "0", "0", "0", "0", "0", "0", "0", …
+$ X81  &lt;chr&gt; "217", "50", "0", "-6", "-78", "0", "44", "-72", "0", "39", "-61"…
+$ X82  &lt;chr&gt; NA, NA, NA, NA, NA, "P", NA, NA, "T", NA, NA, NA, NA, NA, NA, NA,…
+$ X83  &lt;chr&gt; NA, NA, NA, NA, NA, NA, NA, NA, NA, NA, NA, NA, NA, NA, NA, NA, N…
+$ X84  &lt;chr&gt; "0", "0", "0", "0", "0", "0", "0", "0", "0", "0", "0", "0", "0", …
+$ X85  &lt;chr&gt; "222", "94", "0", "61", "-72", "0", "-61", "-178", "5", "56", "-1…
+$ X86  &lt;chr&gt; NA, NA, NA, NA, NA, "P", NA, NA, NA, NA, NA, NA, NA, NA, NA, NA, …
+$ X87  &lt;chr&gt; NA, NA, NA, NA, NA, NA, NA, NA, NA, NA, NA, NA, NA, NA, NA, NA, N…
+$ X88  &lt;chr&gt; "0", "0", "0", "0", "0", "0", "0", "0", "0", "0", "0", "0", "0", …
+$ X89  &lt;chr&gt; "183", "-9999", "117", "44", "-6", "0", "-56", "-150", "0", "39",…
+$ X90  &lt;chr&gt; NA, NA, NA, NA, NA, "P", NA, NA, "P", NA, NA, NA, NA, NA, "P", NA…
+$ X91  &lt;chr&gt; NA, NA, NA, NA, NA, NA, NA, NA, NA, NA, NA, NA, NA, NA, NA, NA, N…
+$ X92  &lt;chr&gt; "0", NA, "0", "0", "0", "0", "0", "0", "0", "0", "0", "0", "0", "…
+$ X93  &lt;chr&gt; "-9999", "72", "112", "106", "-33", "0", "-39", "-156", "0", "72"…
+$ X94  &lt;chr&gt; NA, NA, NA, NA, NA, "P", NA, NA, "P", NA, NA, NA, NA, NA, NA, NA,…
+$ X95  &lt;chr&gt; NA, NA, NA, NA, NA, NA, NA, NA, NA, NA, NA, NA, NA, NA, NA, NA, N…
+$ X96  &lt;chr&gt; NA, "0", "0", "0", "0", "0", "0", "0", "0", "0", NA, "0", "0", "0…
+$ X97  &lt;chr&gt; "128", "39", "0", "139", "17", "0", "-128", "-189", "0", "-9999",…
+$ X98  &lt;chr&gt; NA, NA, "P", NA, NA, "P", NA, NA, "P", NA, NA, NA, NA, NA, "P", N…
+$ X99  &lt;chr&gt; NA, NA, NA, NA, NA, NA, NA, NA, NA, NA, NA, NA, NA, NA, NA, NA, N…
+$ X100 &lt;chr&gt; "0", "0", "0", "0", "0", "0", "0", "0", "0", NA, "0", "0", "0", "…
+$ X101 &lt;chr&gt; "150", "94", "0", "111", "17", "15", "-50", "-150", "5", "0", "-8…
+$ X102 &lt;chr&gt; NA, NA, "P", NA, NA, NA, NA, NA, NA, NA, NA, "P", NA, NA, "P", NA…
+$ X103 &lt;chr&gt; NA, NA, NA, NA, NA, NA, NA, NA, NA, NA, NA, NA, NA, NA, NA, NA, N…
+$ X104 &lt;chr&gt; "0", "0", "0", "0", "0", "0", "0", "0", "0", "0", "0", "0", "0", …
+$ X105 &lt;chr&gt; "139", "94", "0", "44", "-56", "97", "-56", "-117", "94", "-11", …
+$ X106 &lt;chr&gt; NA, NA, "P", NA, NA, NA, NA, NA, NA, NA, NA, "P", NA, NA, NA, NA,…
+$ X107 &lt;chr&gt; NA, NA, NA, NA, NA, NA, NA, NA, NA, NA, NA, NA, NA, NA, NA, NA, N…
+$ X108 &lt;chr&gt; "0", "0", "0", "0", "0", "0", "0", "0", "0", "0", "0", "0", "0", …
+$ X109 &lt;chr&gt; "161", "56", "0", "17", "-61", "0", "-56", "-172", "0", "-6", "-7…
+$ X110 &lt;chr&gt; NA, NA, "P", NA, NA, "P", NA, NA, "P", NA, NA, NA, NA, NA, "P", N…
+$ X111 &lt;chr&gt; NA, NA, NA, NA, NA, NA, NA, NA, NA, NA, NA, NA, NA, NA, NA, NA, N…
+$ X112 &lt;chr&gt; "0", "0", "0", "0", "0", "0", "0", "0", "0", "0", "0", "0", "0", …
+$ X113 &lt;chr&gt; "128", "67", "0", "17", "-83", "0", "-50", "-156", "0", "-39", "-…
+$ X114 &lt;chr&gt; NA, NA, "P", NA, NA, "P", NA, NA, "P", NA, NA, "P", NA, NA, "P", …
+$ X115 &lt;chr&gt; NA, NA, NA, NA, NA, NA, NA, NA, NA, NA, NA, NA, NA, NA, NA, NA, N…
+$ X116 &lt;chr&gt; "0", "0", "0", "0", "0", "0", "0", "0", "0", "0", "0", "0", "0", …
+$ X117 &lt;chr&gt; "183", "67", "0", "-83", "-167", "0", "0", "-67", "0", "-94", "-1…
+$ X118 &lt;chr&gt; NA, NA, "P", NA, NA, "P", NA, NA, "P", NA, NA, "P", NA, NA, NA, N…
+$ X119 &lt;chr&gt; NA, NA, NA, NA, NA, NA, NA, NA, NA, NA, NA, NA, NA, NA, NA, NA, N…
+$ X120 &lt;chr&gt; "0", "0", "0", "0", "0", "0", "0", "0", "0", "0", "0", "0", NA, N…
+$ X121 &lt;chr&gt; "111", "61", "142", "-44", "-150", "0", "33", "-11", "61", "-67",…
+$ X122 &lt;chr&gt; NA, NA, NA, NA, NA, "P", NA, NA, NA, NA, NA, "P", NA, NA, NA, NA,…
+$ X123 &lt;chr&gt; NA, NA, NA, NA, NA, NA, NA, NA, NA, NA, NA, NA, NA, NA, NA, NA, N…
+$ X124 &lt;chr&gt; "0", "0", "0", "0", "0", "0", "0", "0", "0", "0", "0", "0", NA, N…
+$ X125 &lt;chr&gt; "133", "50", "10", "-9999", "-9999", "-9999", "50", "28", "180", …
+$ X126 &lt;chr&gt; NA, NA, NA, NA, NA, NA, NA, NA, NA, NA, NA, "P", NA, NA, NA, NA, …
+$ X127 &lt;chr&gt; NA, NA, NA, NA, NA, NA, NA, NA, NA, NA, NA, NA, NA, NA, NA, NA, N…
+$ X128 &lt;chr&gt; "0", "0", "0", NA, NA, NA, "0", "0", "0", "0", "0", "0", NA, NA, …</code></pre>
+</div>
+</div>
+<div class="cell">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb6"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb6-1"><a href="#cb6-1" aria-hidden="true" tabindex="-1"></a><span class="co">#Rename main columns</span></span>
+<span id="cb6-2"><a href="#cb6-2" aria-hidden="true" tabindex="-1"></a>lexington <span class="ot">&lt;-</span> lexington <span class="sc">|&gt;</span></span>
+<span id="cb6-3"><a href="#cb6-3" aria-hidden="true" tabindex="-1"></a>  <span class="fu">rename</span>(</span>
+<span id="cb6-4"><a href="#cb6-4" aria-hidden="true" tabindex="-1"></a>    <span class="at">station_id =</span> X1,</span>
+<span id="cb6-5"><a href="#cb6-5" aria-hidden="true" tabindex="-1"></a>    <span class="at">year =</span> X2,</span>
+<span id="cb6-6"><a href="#cb6-6" aria-hidden="true" tabindex="-1"></a>    <span class="at">month =</span> X3,</span>
+<span id="cb6-7"><a href="#cb6-7" aria-hidden="true" tabindex="-1"></a>    <span class="at">measurement =</span> X4) <span class="sc">|&gt;</span></span>
+<span id="cb6-8"><a href="#cb6-8" aria-hidden="true" tabindex="-1"></a>  <span class="fu">mutate</span>(</span>
+<span id="cb6-9"><a href="#cb6-9" aria-hidden="true" tabindex="-1"></a>    <span class="at">year =</span> <span class="fu">as.numeric</span>(year)) <span class="sc">|&gt;</span></span>
+<span id="cb6-10"><a href="#cb6-10" aria-hidden="true" tabindex="-1"></a>  <span class="fu">filter</span>(</span>
+<span id="cb6-11"><a href="#cb6-11" aria-hidden="true" tabindex="-1"></a>    measurement <span class="sc">==</span> <span class="st">"SNOW"</span>,</span>
+<span id="cb6-12"><a href="#cb6-12" aria-hidden="true" tabindex="-1"></a>    year <span class="sc">&gt;=</span> <span class="dv">1995</span>,</span>
+<span id="cb6-13"><a href="#cb6-13" aria-hidden="true" tabindex="-1"></a>    year <span class="sc">&lt;=</span> <span class="dv">2025</span>)</span>
+<span id="cb6-14"><a href="#cb6-14" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb6-15"><a href="#cb6-15" aria-hidden="true" tabindex="-1"></a><span class="co">#Look at the snowfall records</span></span>
+<span id="cb6-16"><a href="#cb6-16" aria-hidden="true" tabindex="-1"></a>lexington <span class="sc">|&gt;</span></span>
+<span id="cb6-17"><a href="#cb6-17" aria-hidden="true" tabindex="-1"></a>  <span class="fu">select</span>(station_id, year, month, measurement) <span class="sc">|&gt;</span></span>
+<span id="cb6-18"><a href="#cb6-18" aria-hidden="true" tabindex="-1"></a>  <span class="fu">head</span>(<span class="dv">10</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="cell-output cell-output-stdout">
+<pre><code># A tibble: 10 × 4
+   station_id   year month measurement
+   &lt;chr&gt;       &lt;dbl&gt; &lt;chr&gt; &lt;chr&gt;      
+ 1 USW00093820  1995 01    SNOW       
+ 2 USW00093820  1995 02    SNOW       
+ 3 USW00093820  1995 03    SNOW       
+ 4 USW00093820  1995 04    SNOW       
+ 5 USW00093820  1995 05    SNOW       
+ 6 USW00093820  1995 06    SNOW       
+ 7 USW00093820  1995 07    SNOW       
+ 8 USW00093820  1995 08    SNOW       
+ 9 USW00093820  1995 09    SNOW       
+10 USW00093820  1995 10    SNOW       </code></pre>
+</div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb8"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb8-1"><a href="#cb8-1" aria-hidden="true" tabindex="-1"></a><span class="fu">nrow</span>(lexington)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>[1] 372</code></pre>
+</div>
+</div>
+<div class="cell">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb10"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb10-1"><a href="#cb10-1" aria-hidden="true" tabindex="-1"></a><span class="co">#Keep the daily snowfall value columns</span></span>
+<span id="cb10-2"><a href="#cb10-2" aria-hidden="true" tabindex="-1"></a>lexington_daily <span class="ot">&lt;-</span> lexington <span class="sc">|&gt;</span></span>
+<span id="cb10-3"><a href="#cb10-3" aria-hidden="true" tabindex="-1"></a>  <span class="fu">select</span>(</span>
+<span id="cb10-4"><a href="#cb10-4" aria-hidden="true" tabindex="-1"></a>    station_id, year, month,</span>
+<span id="cb10-5"><a href="#cb10-5" aria-hidden="true" tabindex="-1"></a>    <span class="fu">all_of</span>(<span class="fu">paste0</span>(<span class="st">"X"</span>, <span class="dv">5</span> <span class="sc">+</span> <span class="dv">4</span> <span class="sc">*</span> (<span class="dv">0</span><span class="sc">:</span><span class="dv">30</span>))))</span>
+<span id="cb10-6"><a href="#cb10-6" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb10-7"><a href="#cb10-7" aria-hidden="true" tabindex="-1"></a><span class="co">#Rename the daily columns</span></span>
+<span id="cb10-8"><a href="#cb10-8" aria-hidden="true" tabindex="-1"></a>lexington_daily <span class="ot">&lt;-</span> lexington_daily <span class="sc">|&gt;</span></span>
+<span id="cb10-9"><a href="#cb10-9" aria-hidden="true" tabindex="-1"></a>  <span class="fu">rename_with</span>(<span class="sc">~</span> <span class="fu">paste0</span>(<span class="st">"day_"</span>, <span class="dv">1</span><span class="sc">:</span><span class="dv">31</span>),</span>
+<span id="cb10-10"><a href="#cb10-10" aria-hidden="true" tabindex="-1"></a>    <span class="fu">starts_with</span>(<span class="st">"X"</span>))</span>
+<span id="cb10-11"><a href="#cb10-11" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb10-12"><a href="#cb10-12" aria-hidden="true" tabindex="-1"></a><span class="co">#Turn daily columns into rows</span></span>
+<span id="cb10-13"><a href="#cb10-13" aria-hidden="true" tabindex="-1"></a>lexington_daily <span class="ot">&lt;-</span> lexington_daily <span class="sc">|&gt;</span></span>
+<span id="cb10-14"><a href="#cb10-14" aria-hidden="true" tabindex="-1"></a>  <span class="fu">pivot_longer</span>(</span>
+<span id="cb10-15"><a href="#cb10-15" aria-hidden="true" tabindex="-1"></a>    <span class="at">cols =</span> <span class="fu">starts_with</span>(<span class="st">"day_"</span>),</span>
+<span id="cb10-16"><a href="#cb10-16" aria-hidden="true" tabindex="-1"></a>    <span class="at">names_to =</span> <span class="st">"day"</span>,</span>
+<span id="cb10-17"><a href="#cb10-17" aria-hidden="true" tabindex="-1"></a>    <span class="at">values_to =</span> <span class="st">"snowfall_mm"</span>) <span class="sc">|&gt;</span></span>
+<span id="cb10-18"><a href="#cb10-18" aria-hidden="true" tabindex="-1"></a>  <span class="fu">mutate</span>(</span>
+<span id="cb10-19"><a href="#cb10-19" aria-hidden="true" tabindex="-1"></a>    <span class="at">day =</span> <span class="fu">as.numeric</span>(<span class="fu">str_remove</span>(day, <span class="st">"day_"</span>)),</span>
+<span id="cb10-20"><a href="#cb10-20" aria-hidden="true" tabindex="-1"></a>    <span class="at">snowfall_mm =</span> <span class="fu">as.numeric</span>(snowfall_mm),</span>
+<span id="cb10-21"><a href="#cb10-21" aria-hidden="true" tabindex="-1"></a>    <span class="at">snowfall_mm =</span> <span class="fu">na_if</span>(snowfall_mm, <span class="sc">-</span><span class="dv">9999</span>),</span>
+<span id="cb10-22"><a href="#cb10-22" aria-hidden="true" tabindex="-1"></a>    <span class="at">date =</span> <span class="fu">as.Date</span>(<span class="fu">paste</span>(year, month, day, <span class="at">sep =</span> <span class="st">"-"</span>)),</span>
+<span id="cb10-23"><a href="#cb10-23" aria-hidden="true" tabindex="-1"></a>    <span class="at">snowfall_inches =</span> snowfall_mm <span class="sc">/</span> <span class="fl">25.4</span>) <span class="sc">|&gt;</span></span>
+<span id="cb10-24"><a href="#cb10-24" aria-hidden="true" tabindex="-1"></a>  <span class="fu">filter</span>(<span class="sc">!</span><span class="fu">is.na</span>(date)) <span class="sc">|&gt;</span></span>
+<span id="cb10-25"><a href="#cb10-25" aria-hidden="true" tabindex="-1"></a>  <span class="fu">select</span>(station_id, date, snowfall_inches)</span>
+<span id="cb10-26"><a href="#cb10-26" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb10-27"><a href="#cb10-27" aria-hidden="true" tabindex="-1"></a><span class="fu">head</span>(lexington_daily, <span class="dv">10</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="cell-output cell-output-stdout">
+<pre><code># A tibble: 10 × 3
+   station_id  date       snowfall_inches
+   &lt;chr&gt;       &lt;date&gt;               &lt;dbl&gt;
+ 1 USW00093820 1995-01-01           0.315
+ 2 USW00093820 1995-01-02           0    
+ 3 USW00093820 1995-01-03           0    
+ 4 USW00093820 1995-01-04           0    
+ 5 USW00093820 1995-01-05           0    
+ 6 USW00093820 1995-01-06           0.118
+ 7 USW00093820 1995-01-07           0    
+ 8 USW00093820 1995-01-08           0    
+ 9 USW00093820 1995-01-09           0    
+10 USW00093820 1995-01-10           0    </code></pre>
+</div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb12"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb12-1"><a href="#cb12-1" aria-hidden="true" tabindex="-1"></a><span class="co">#Daily observations</span></span>
+<span id="cb12-2"><a href="#cb12-2" aria-hidden="true" tabindex="-1"></a><span class="fu">nrow</span>(lexington_daily)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>[1] 11323</code></pre>
+</div>
+</div>
+<p>After organizing Lexington’s original weather records, we converted the monthly snowfall data into individual daily observations using pivot_longer(). We also converted the snowfall measurements from millimeters to inches and removed invalid dates and missing measurement codes. This gave us 11,323 daily records from 1995 through 2025, making the data much easier to work with and compare.</p>
+<div class="cell">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb14"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb14-1"><a href="#cb14-1" aria-hidden="true" tabindex="-1"></a><span class="co">#Check for duplicates</span></span>
+<span id="cb14-2"><a href="#cb14-2" aria-hidden="true" tabindex="-1"></a>lexington_daily <span class="sc">|&gt;</span></span>
+<span id="cb14-3"><a href="#cb14-3" aria-hidden="true" tabindex="-1"></a>  <span class="fu">count</span>(station_id, date) <span class="sc">|&gt;</span></span>
+<span id="cb14-4"><a href="#cb14-4" aria-hidden="true" tabindex="-1"></a>  <span class="fu">filter</span>(n <span class="sc">&gt;</span> <span class="dv">1</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="cell-output cell-output-stdout">
+<pre><code># A tibble: 0 × 3
+# ℹ 3 variables: station_id &lt;chr&gt;, date &lt;date&gt;, n &lt;int&gt;</code></pre>
+</div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb16"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb16-1"><a href="#cb16-1" aria-hidden="true" tabindex="-1"></a><span class="co">#Check for missing snowfall values</span></span>
+<span id="cb16-2"><a href="#cb16-2" aria-hidden="true" tabindex="-1"></a>lexington_daily <span class="sc">|&gt;</span></span>
+<span id="cb16-3"><a href="#cb16-3" aria-hidden="true" tabindex="-1"></a>  <span class="fu">summarise</span>(</span>
+<span id="cb16-4"><a href="#cb16-4" aria-hidden="true" tabindex="-1"></a>    <span class="at">total_days =</span> <span class="fu">n</span>(),</span>
+<span id="cb16-5"><a href="#cb16-5" aria-hidden="true" tabindex="-1"></a>    <span class="at">missing_snowfall =</span> <span class="fu">sum</span>(<span class="fu">is.na</span>(snowfall_inches)),</span>
+<span id="cb16-6"><a href="#cb16-6" aria-hidden="true" tabindex="-1"></a>    <span class="at">missing_percent =</span> <span class="fu">mean</span>(<span class="fu">is.na</span>(snowfall_inches)) <span class="sc">*</span> <span class="dv">100</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="cell-output cell-output-stdout">
+<pre><code># A tibble: 1 × 3
+  total_days missing_snowfall missing_percent
+       &lt;int&gt;            &lt;int&gt;           &lt;dbl&gt;
+1      11323                0               0</code></pre>
+</div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb18"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb18-1"><a href="#cb18-1" aria-hidden="true" tabindex="-1"></a><span class="co">#Check for negative snowfall amounts</span></span>
+<span id="cb18-2"><a href="#cb18-2" aria-hidden="true" tabindex="-1"></a>lexington_daily <span class="sc">|&gt;</span></span>
+<span id="cb18-3"><a href="#cb18-3" aria-hidden="true" tabindex="-1"></a>  <span class="fu">filter</span>(snowfall_inches <span class="sc">&lt;</span> <span class="dv">0</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="cell-output cell-output-stdout">
+<pre><code># A tibble: 0 × 3
+# ℹ 3 variables: station_id &lt;chr&gt;, date &lt;date&gt;, snowfall_inches &lt;dbl&gt;</code></pre>
+</div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb20"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb20-1"><a href="#cb20-1" aria-hidden="true" tabindex="-1"></a><span class="co">#Check the date range</span></span>
+<span id="cb20-2"><a href="#cb20-2" aria-hidden="true" tabindex="-1"></a>lexington_daily <span class="sc">|&gt;</span></span>
+<span id="cb20-3"><a href="#cb20-3" aria-hidden="true" tabindex="-1"></a>  <span class="fu">summarise</span>(</span>
+<span id="cb20-4"><a href="#cb20-4" aria-hidden="true" tabindex="-1"></a>    <span class="at">first_date =</span> <span class="fu">min</span>(date),</span>
+<span id="cb20-5"><a href="#cb20-5" aria-hidden="true" tabindex="-1"></a>    <span class="at">last_date =</span> <span class="fu">max</span>(date))</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="cell-output cell-output-stdout">
+<pre><code># A tibble: 1 × 2
+  first_date last_date 
+  &lt;date&gt;     &lt;date&gt;    
+1 1995-01-01 2025-12-31</code></pre>
+</div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb22"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb22-1"><a href="#cb22-1" aria-hidden="true" tabindex="-1"></a><span class="co">#Check parsing problems</span></span>
+<span id="cb22-2"><a href="#cb22-2" aria-hidden="true" tabindex="-1"></a><span class="fu">nrow</span>(<span class="fu">problems</span>(lexington))</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>[1] 0</code></pre>
+</div>
+</div>
+<div class="cell">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb24"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb24-1"><a href="#cb24-1" aria-hidden="true" tabindex="-1"></a><span class="co">#Check NOAA's snowfall quality flags</span></span>
+<span id="cb24-2"><a href="#cb24-2" aria-hidden="true" tabindex="-1"></a>lexington <span class="sc">|&gt;</span></span>
+<span id="cb24-3"><a href="#cb24-3" aria-hidden="true" tabindex="-1"></a>  <span class="fu">select</span>(<span class="fu">all_of</span>(<span class="fu">paste0</span>(<span class="st">"X"</span>, <span class="dv">7</span> <span class="sc">+</span> <span class="dv">4</span> <span class="sc">*</span> (<span class="dv">0</span><span class="sc">:</span><span class="dv">30</span>)))) <span class="sc">|&gt;</span></span>
+<span id="cb24-4"><a href="#cb24-4" aria-hidden="true" tabindex="-1"></a>  <span class="fu">pivot_longer</span>(</span>
+<span id="cb24-5"><a href="#cb24-5" aria-hidden="true" tabindex="-1"></a>    <span class="at">cols =</span> <span class="fu">everything</span>(),</span>
+<span id="cb24-6"><a href="#cb24-6" aria-hidden="true" tabindex="-1"></a>    <span class="at">names_to =</span> <span class="st">"day"</span>,</span>
+<span id="cb24-7"><a href="#cb24-7" aria-hidden="true" tabindex="-1"></a>    <span class="at">values_to =</span> <span class="st">"quality_flag"</span>) <span class="sc">|&gt;</span></span>
+<span id="cb24-8"><a href="#cb24-8" aria-hidden="true" tabindex="-1"></a>  <span class="fu">count</span>(quality_flag)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="cell-output cell-output-stdout">
+<pre><code># A tibble: 1 × 2
+  quality_flag     n
+  &lt;chr&gt;        &lt;int&gt;
+1 &lt;NA&gt;         11532</code></pre>
+</div>
+</div>
+<p>We then checked Lexington’s data for duplicate dates, missing snowfall measurements, negative snowfall values, and parsing problems. These checks help us determine whether the observations are consistent and identify any issues that could affect our results. We also examined NOAA’s quality flags to see whether any snowfall measurements had been marked as questionable.</p>
+</section>
+<section id="louisville" class="level2">
+<h2 class="anchored" data-anchor-id="louisville">Louisville</h2>
+<p>We followed the same process for Louisville, Kentucky, to make sure both Kentucky cities were organized consistently. After filtering the snowfall records to 1995–2025, we converted the observations into daily snowfall measurements and checked the data for missing values and duplicates. Louisville had 11,080 daily records, including 48 missing snowfall values. We also identified two observations with NOAA quality flags that will need further review.</p>
+<div class="cell">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb26"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb26-1"><a href="#cb26-1" aria-hidden="true" tabindex="-1"></a><span class="co">#Import Louisville weather data</span></span>
+<span id="cb26-2"><a href="#cb26-2" aria-hidden="true" tabindex="-1"></a>louisville <span class="ot">&lt;-</span> <span class="fu">read_fwf</span>(</span>
+<span id="cb26-3"><a href="#cb26-3" aria-hidden="true" tabindex="-1"></a>  <span class="st">"Raw GP/LOU KY.dly"</span>,</span>
+<span id="cb26-4"><a href="#cb26-4" aria-hidden="true" tabindex="-1"></a>  <span class="fu">fwf_widths</span>(</span>
+<span id="cb26-5"><a href="#cb26-5" aria-hidden="true" tabindex="-1"></a>    <span class="fu">c</span>(<span class="dv">11</span>, <span class="dv">4</span>, <span class="dv">2</span>, <span class="dv">4</span>, <span class="fu">rep</span>(<span class="fu">c</span>(<span class="dv">5</span>, <span class="dv">1</span>, <span class="dv">1</span>, <span class="dv">1</span>), <span class="dv">31</span>)),</span>
+<span id="cb26-6"><a href="#cb26-6" aria-hidden="true" tabindex="-1"></a>    <span class="at">col_names =</span> <span class="cn">NULL</span>),</span>
+<span id="cb26-7"><a href="#cb26-7" aria-hidden="true" tabindex="-1"></a>  <span class="at">col_types =</span> <span class="fu">cols</span>(<span class="at">.default =</span> <span class="fu">col_character</span>()),</span>
+<span id="cb26-8"><a href="#cb26-8" aria-hidden="true" tabindex="-1"></a>  <span class="at">show_col_types =</span> <span class="cn">FALSE</span>)</span>
+<span id="cb26-9"><a href="#cb26-9" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb26-10"><a href="#cb26-10" aria-hidden="true" tabindex="-1"></a><span class="fu">glimpse</span>(louisville)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>Rows: 17,762
+Columns: 128
+$ X1   &lt;chr&gt; "USW00093821", "USW00093821", "USW00093821", "USW00093821", "USW0…
+$ X2   &lt;chr&gt; "1948", "1948", "1948", "1948", "1948", "1948", "1948", "1948", "…
+$ X3   &lt;chr&gt; "01", "01", "01", "01", "01", "01", "01", "01", "01", "01", "01",…
+$ X4   &lt;chr&gt; "TMAX", "TMIN", "PRCP", "SNOW", "SNWD", "GAHT", "WT01", "WT03", "…
+$ X5   &lt;chr&gt; "167", "-28", "325", "10", "0", "-354", "1", "1", "-9999", "-9999…
+$ X6   &lt;chr&gt; NA, NA, NA, NA, NA, NA, NA, NA, NA, NA, NA, NA, NA, NA, NA, NA, N…
+$ X7   &lt;chr&gt; NA, NA, NA, NA, NA, NA, NA, NA, NA, NA, NA, NA, NA, NA, NA, NA, N…
+$ X8   &lt;chr&gt; "X", "X", "X", "X", "X", "X", "X", "X", NA, NA, "X", "X", "X", "X…
+$ X9   &lt;chr&gt; "17", "-33", "0", "0", "0", "-527", "1", "-9999", "-9999", "1", "…
+$ X10  &lt;chr&gt; NA, NA, "T", "T", "T", NA, NA, NA, NA, NA, NA, NA, NA, NA, NA, NA…
+$ X11  &lt;chr&gt; NA, NA, NA, NA, NA, NA, NA, NA, NA, NA, NA, NA, NA, NA, NA, NA, N…
+$ X12  &lt;chr&gt; "X", "X", "X", "X", "X", "X", "X", NA, NA, "X", NA, NA, "X", "X",…
+$ X13  &lt;chr&gt; "11", "-17", "0", "0", "0", "-686", "1", "-9999", "-9999", "-9999…
+$ X14  &lt;chr&gt; NA, NA, "T", "T", NA, NA, NA, NA, NA, NA, NA, NA, NA, NA, NA, NA,…
+$ X15  &lt;chr&gt; NA, NA, NA, NA, NA, NA, NA, NA, NA, NA, NA, NA, NA, NA, NA, NA, N…
+$ X16  &lt;chr&gt; "X", "X", "X", "X", "X", "X", "X", NA, NA, NA, "X", NA, "X", "X",…
+$ X17  &lt;chr&gt; "39", "-11", "0", "0", "0", "-701", "-9999", "-9999", "-9999", "-…
+$ X18  &lt;chr&gt; NA, NA, "T", "T", NA, NA, NA, NA, NA, NA, NA, NA, NA, NA, NA, NA,…
+$ X19  &lt;chr&gt; NA, NA, NA, NA, NA, NA, NA, NA, NA, NA, NA, NA, NA, NA, NA, NA, N…
+$ X20  &lt;chr&gt; "X", "X", "X", "X", "X", "X", NA, NA, NA, NA, "X", "X", "X", "X",…
+$ X21  &lt;chr&gt; "28", "0", "0", "0", "0", "-796", "-9999", "-9999", "-9999", "-99…
+$ X22  &lt;chr&gt; NA, NA, NA, NA, NA, NA, NA, NA, NA, NA, NA, NA, NA, NA, NA, NA, N…
+$ X23  &lt;chr&gt; NA, NA, NA, NA, NA, NA, NA, NA, NA, NA, NA, NA, NA, NA, NA, NA, N…
+$ X24  &lt;chr&gt; "X", "X", "X", "X", "X", "X", NA, NA, NA, NA, "X", NA, NA, "X", "…
+$ X25  &lt;chr&gt; "89", "-6", "-9999", "0", "0", "-814", "-9999", "-9999", "-9999",…
+$ X26  &lt;chr&gt; NA, NA, NA, "T", NA, NA, NA, NA, NA, NA, NA, NA, NA, NA, NA, NA, …
+$ X27  &lt;chr&gt; NA, NA, NA, NA, NA, NA, NA, NA, NA, NA, NA, NA, NA, NA, NA, NA, N…
+$ X28  &lt;chr&gt; "X", "X", NA, "X", "X", "X", NA, NA, NA, NA, "X", NA, "X", "X", "…
+$ X29  &lt;chr&gt; "94", "-28", "0", "0", "0", "-832", "-9999", "-9999", "-9999", "-…
+$ X30  &lt;chr&gt; NA, NA, NA, NA, NA, NA, NA, NA, NA, NA, NA, NA, NA, NA, NA, "T", …
+$ X31  &lt;chr&gt; NA, NA, NA, NA, NA, NA, NA, NA, NA, NA, NA, NA, NA, NA, NA, NA, N…
+$ X32  &lt;chr&gt; "X", "X", "X", "X", "X", "X", NA, NA, NA, NA, "X", NA, NA, "X", "…
+$ X33  &lt;chr&gt; "150", "28", "0", "0", "0", "-811", "-9999", "-9999", "-9999", "-…
+$ X34  &lt;chr&gt; NA, NA, NA, NA, NA, NA, NA, NA, NA, NA, NA, NA, NA, NA, NA, NA, N…
+$ X35  &lt;chr&gt; NA, NA, NA, NA, NA, NA, NA, NA, NA, NA, NA, NA, NA, NA, NA, NA, N…
+$ X36  &lt;chr&gt; "X", "X", "X", "X", "X", "X", NA, NA, NA, NA, NA, NA, NA, "X", "X…
+$ X37  &lt;chr&gt; "150", "17", "0", "0", "0", "-753", "-9999", "-9999", "-9999", "-…
+$ X38  &lt;chr&gt; NA, NA, NA, NA, NA, NA, NA, NA, NA, NA, NA, NA, NA, NA, NA, NA, N…
+$ X39  &lt;chr&gt; NA, NA, NA, NA, NA, NA, NA, NA, NA, NA, NA, NA, NA, NA, NA, NA, N…
+$ X40  &lt;chr&gt; "X", "X", "X", "X", "X", "X", NA, NA, NA, NA, "X", NA, NA, "X", "…
+$ X41  &lt;chr&gt; "50", "-33", "0", "0", "0", "-686", "-9999", "-9999", "-9999", "-…
+$ X42  &lt;chr&gt; NA, NA, NA, NA, NA, NA, NA, NA, NA, NA, NA, NA, NA, NA, NA, NA, N…
+$ X43  &lt;chr&gt; NA, NA, NA, NA, NA, NA, NA, NA, NA, NA, NA, NA, NA, NA, NA, NA, N…
+$ X44  &lt;chr&gt; "X", "X", "X", "X", "X", "X", NA, NA, NA, NA, "X", NA, NA, "X", "…
+$ X45  &lt;chr&gt; "78", "-56", "0", "0", "0", "-564", "1", "-9999", "1", "-9999", "…
+$ X46  &lt;chr&gt; NA, NA, "T", NA, NA, NA, NA, NA, NA, NA, NA, NA, NA, NA, NA, NA, …
+$ X47  &lt;chr&gt; NA, NA, NA, NA, NA, NA, NA, NA, NA, NA, NA, NA, NA, NA, NA, NA, N…
+$ X48  &lt;chr&gt; "X", "X", "X", "X", "X", "X", "X", NA, "X", NA, "X", "X", NA, "X"…
+$ X49  &lt;chr&gt; "67", "11", "130", "0", "0", "-503", "1", "-9999", "1", "-9999", …
+$ X50  &lt;chr&gt; NA, NA, NA, "T", NA, NA, NA, NA, NA, NA, NA, NA, NA, NA, NA, NA, …
+$ X51  &lt;chr&gt; NA, NA, NA, NA, NA, NA, NA, NA, NA, NA, NA, NA, NA, NA, NA, NA, N…
+$ X52  &lt;chr&gt; "X", "X", "X", "X", "X", "X", "X", NA, "X", NA, "X", "X", "X", "X…
+$ X53  &lt;chr&gt; "22", "-89", "0", "0", "0", "-482", "1", "-9999", "-9999", "-9999…
+$ X54  &lt;chr&gt; NA, NA, "T", "T", "T", NA, NA, NA, NA, NA, NA, NA, NA, NA, NA, NA…
+$ X55  &lt;chr&gt; NA, NA, NA, NA, NA, NA, NA, NA, NA, NA, NA, NA, NA, NA, NA, NA, N…
+$ X56  &lt;chr&gt; "X", "X", "X", "X", "X", "X", "X", NA, NA, NA, "X", NA, "X", "X",…
+$ X57  &lt;chr&gt; "-78", "-133", "0", "0", "0", "-509", "-9999", "-9999", "-9999", …
+$ X58  &lt;chr&gt; NA, NA, "T", "T", NA, NA, NA, NA, NA, NA, NA, NA, NA, NA, NA, NA,…
+$ X59  &lt;chr&gt; NA, NA, NA, NA, NA, NA, NA, NA, NA, NA, NA, NA, NA, NA, NA, NA, N…
+$ X60  &lt;chr&gt; "X", "X", "X", "X", "X", "X", NA, NA, NA, NA, "X", NA, "X", "X", …
+$ X61  &lt;chr&gt; "44", "-133", "0", "0", "0", "-552", "-9999", "-9999", "-9999", "…
+$ X62  &lt;chr&gt; NA, NA, NA, NA, NA, NA, NA, NA, NA, NA, NA, NA, NA, NA, NA, NA, N…
+$ X63  &lt;chr&gt; NA, NA, NA, NA, NA, NA, NA, NA, NA, NA, NA, NA, NA, NA, NA, NA, N…
+$ X64  &lt;chr&gt; "X", "X", "X", "X", "X", "X", NA, NA, NA, NA, "X", NA, NA, "X", "…
+$ X65  &lt;chr&gt; "22", "-78", "3", "3", "0", "-588", "-9999", "-9999", "-9999", "-…
+$ X66  &lt;chr&gt; NA, NA, NA, NA, NA, NA, NA, NA, NA, NA, NA, NA, NA, NA, NA, NA, N…
+$ X67  &lt;chr&gt; NA, NA, NA, NA, NA, NA, NA, NA, NA, NA, NA, NA, NA, NA, NA, NA, N…
+$ X68  &lt;chr&gt; "X", "X", "X", "X", "X", "X", NA, NA, NA, NA, "X", NA, "X", "X", …
+$ X69  &lt;chr&gt; "-56", "-133", "28", "28", "0", "-588", "-9999", "-9999", "-9999"…
+$ X70  &lt;chr&gt; NA, NA, NA, NA, "T", NA, NA, NA, NA, NA, NA, NA, NA, NA, NA, NA, …
+$ X71  &lt;chr&gt; NA, NA, NA, NA, NA, NA, NA, NA, NA, NA, NA, NA, NA, NA, NA, NA, N…
+$ X72  &lt;chr&gt; "X", "X", "X", "X", "X", "X", NA, NA, NA, NA, "X", NA, "X", "X", …
+$ X73  &lt;chr&gt; "-61", "-161", "0", "0", "0", "-552", "-9999", "-9999", "-9999", …
+$ X74  &lt;chr&gt; NA, NA, NA, NA, "T", NA, NA, NA, NA, NA, NA, NA, NA, NA, NA, NA, …
+$ X75  &lt;chr&gt; NA, NA, NA, NA, NA, NA, NA, NA, NA, NA, NA, NA, NA, NA, NA, NA, N…
+$ X76  &lt;chr&gt; "X", "X", "X", "X", "X", "X", NA, NA, NA, NA, "X", NA, NA, "X", "…
+$ X77  &lt;chr&gt; "6", "-139", "0", "0", "0", "-503", "-9999", "-9999", "-9999", "-…
+$ X78  &lt;chr&gt; NA, NA, NA, NA, "T", NA, NA, NA, NA, NA, NA, NA, NA, NA, NA, NA, …
+$ X79  &lt;chr&gt; NA, NA, NA, NA, NA, NA, NA, NA, NA, NA, NA, NA, NA, NA, NA, NA, N…
+$ X80  &lt;chr&gt; "X", "X", "X", "X", "X", "X", NA, NA, NA, NA, "X", NA, NA, "X", "…
+$ X81  &lt;chr&gt; "50", "-106", "3", "0", "0", "-378", "-9999", "-9999", "1", "-999…
+$ X82  &lt;chr&gt; NA, NA, NA, "T", "T", NA, NA, NA, NA, NA, NA, NA, NA, NA, NA, NA,…
+$ X83  &lt;chr&gt; NA, NA, NA, NA, NA, NA, NA, NA, NA, NA, NA, NA, NA, NA, NA, NA, N…
+$ X84  &lt;chr&gt; "X", "X", "X", "X", "X", "X", NA, NA, "X", NA, "X", "X", "X", "X"…
+$ X85  &lt;chr&gt; "67", "-50", "13", "18", "0", "-372", "-9999", "-9999", "-9999", …
+$ X86  &lt;chr&gt; NA, NA, NA, NA, "T", NA, NA, NA, NA, NA, NA, NA, NA, NA, NA, NA, …
+$ X87  &lt;chr&gt; NA, NA, NA, NA, NA, NA, NA, NA, NA, NA, NA, NA, NA, NA, NA, NA, N…
+$ X88  &lt;chr&gt; "X", "X", "X", "X", "X", "X", NA, NA, NA, NA, "X", NA, "X", "X", …
+$ X89  &lt;chr&gt; "-44", "-122", "20", "25", "25", "-314", "-9999", "-9999", "-9999…
+$ X90  &lt;chr&gt; NA, NA, NA, NA, NA, NA, NA, NA, NA, NA, NA, NA, NA, NA, NA, "T", …
+$ X91  &lt;chr&gt; NA, NA, NA, NA, NA, NA, NA, NA, NA, NA, NA, NA, NA, NA, NA, NA, N…
+$ X92  &lt;chr&gt; "X", "X", "X", "X", "X", "X", NA, NA, NA, NA, "X", NA, "X", "X", …
+$ X93  &lt;chr&gt; "-72", "-156", "0", "0", "25", "-347", "1", "-9999", "-9999", "-9…
+$ X94  &lt;chr&gt; NA, NA, NA, NA, NA, NA, NA, NA, NA, NA, NA, NA, NA, NA, NA, NA, N…
+$ X95  &lt;chr&gt; NA, NA, NA, NA, NA, NA, NA, NA, NA, NA, NA, NA, NA, NA, NA, NA, N…
+$ X96  &lt;chr&gt; "X", "X", "X", "X", "X", "X", "X", NA, NA, NA, "X", NA, NA, "X", …
+$ X97  &lt;chr&gt; "-89", "-178", "71", "74", "76", "-305", "1", "-9999", "-9999", "…
+$ X98  &lt;chr&gt; NA, NA, NA, NA, NA, NA, NA, NA, NA, NA, NA, NA, NA, NA, NA, NA, N…
+$ X99  &lt;chr&gt; NA, NA, NA, NA, NA, NA, NA, NA, NA, NA, NA, NA, NA, NA, NA, NA, N…
+$ X100 &lt;chr&gt; "X", "X", "X", "X", "X", "X", "X", NA, NA, NA, "X", NA, "X", "X",…
+$ X101 &lt;chr&gt; "-61", "-206", "0", "0", "76", "-375", "1", "-9999", "-9999", "-9…
+$ X102 &lt;chr&gt; NA, NA, "T", "T", NA, NA, NA, NA, NA, NA, NA, NA, NA, NA, NA, NA,…
+$ X103 &lt;chr&gt; NA, NA, NA, NA, NA, NA, NA, NA, NA, NA, NA, NA, NA, NA, NA, NA, N…
+$ X104 &lt;chr&gt; "X", "X", "X", "X", "X", "X", "X", NA, NA, NA, "X", NA, "X", "X",…
+$ X105 &lt;chr&gt; "-39", "-211", "5", "13", "76", "-323", "1", "-9999", "-9999", "-…
+$ X106 &lt;chr&gt; NA, NA, NA, NA, NA, NA, NA, NA, NA, NA, NA, NA, NA, NA, NA, NA, N…
+$ X107 &lt;chr&gt; NA, NA, NA, NA, NA, NA, NA, NA, NA, NA, NA, NA, NA, NA, NA, NA, N…
+$ X108 &lt;chr&gt; "X", "X", "X", "X", "X", "X", "X", NA, NA, NA, "X", NA, "X", "X",…
+$ X109 &lt;chr&gt; "-50", "-122", "15", "23", "102", "-314", "1", "-9999", "-9999", …
+$ X110 &lt;chr&gt; NA, NA, NA, NA, NA, NA, NA, NA, NA, NA, NA, NA, NA, NA, NA, NA, N…
+$ X111 &lt;chr&gt; NA, NA, NA, NA, NA, NA, NA, NA, NA, NA, NA, NA, NA, NA, NA, NA, N…
+$ X112 &lt;chr&gt; "X", "X", "X", "X", "X", "X", "X", NA, NA, NA, "X", NA, "X", "X",…
+$ X113 &lt;chr&gt; "-61", "-183", "0", "0", "76", "-344", "1", "-9999", "-9999", "-9…
+$ X114 &lt;chr&gt; NA, NA, NA, NA, NA, NA, NA, NA, NA, NA, NA, NA, NA, NA, NA, NA, N…
+$ X115 &lt;chr&gt; NA, NA, NA, NA, NA, NA, NA, NA, NA, NA, NA, NA, NA, NA, NA, NA, N…
+$ X116 &lt;chr&gt; "X", "X", "X", "X", "X", "X", "X", NA, NA, NA, "X", NA, NA, "X", …
+$ X117 &lt;chr&gt; "-39", "-150", "0", "0", "51", "-314", "-9999", "-9999", "-9999",…
+$ X118 &lt;chr&gt; NA, NA, NA, NA, NA, NA, NA, NA, NA, NA, NA, NA, NA, NA, NA, NA, N…
+$ X119 &lt;chr&gt; NA, NA, NA, NA, NA, NA, NA, NA, NA, NA, NA, NA, NA, NA, NA, NA, N…
+$ X120 &lt;chr&gt; "X", "X", "X", "X", "X", "X", NA, NA, NA, NA, "X", NA, NA, "X", "…
+$ X121 &lt;chr&gt; "-6", "-72", "3", "0", "51", "-311", "-9999", "-9999", "1", "1", …
+$ X122 &lt;chr&gt; NA, NA, NA, "T", NA, NA, NA, NA, NA, NA, NA, NA, NA, NA, NA, NA, …
+$ X123 &lt;chr&gt; NA, NA, NA, NA, NA, NA, NA, NA, NA, NA, NA, NA, NA, NA, NA, NA, N…
+$ X124 &lt;chr&gt; "X", "X", "X", "X", "X", "X", NA, NA, "X", "X", "X", NA, NA, NA, …
+$ X125 &lt;chr&gt; "-72", "-100", "30", "36", "102", "-268", "-9999", "-9999", "1", …
+$ X126 &lt;chr&gt; NA, NA, NA, NA, NA, NA, NA, NA, NA, NA, NA, NA, NA, NA, NA, NA, N…
+$ X127 &lt;chr&gt; NA, NA, NA, NA, NA, NA, NA, NA, NA, NA, NA, NA, NA, NA, NA, NA, N…
+$ X128 &lt;chr&gt; "X", "X", "X", "X", "X", "X", NA, NA, "X", "X", "X", NA, "X", NA,…</code></pre>
+</div>
+</div>
+<div class="cell">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb28"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb28-1"><a href="#cb28-1" aria-hidden="true" tabindex="-1"></a><span class="co">#Keep Lou snowfall records from 1995-2025</span></span>
+<span id="cb28-2"><a href="#cb28-2" aria-hidden="true" tabindex="-1"></a>louisville <span class="ot">&lt;-</span> louisville <span class="sc">|&gt;</span></span>
+<span id="cb28-3"><a href="#cb28-3" aria-hidden="true" tabindex="-1"></a>  <span class="fu">rename</span>(</span>
+<span id="cb28-4"><a href="#cb28-4" aria-hidden="true" tabindex="-1"></a>    <span class="at">station_id =</span> X1,</span>
+<span id="cb28-5"><a href="#cb28-5" aria-hidden="true" tabindex="-1"></a>    <span class="at">year =</span> X2,</span>
+<span id="cb28-6"><a href="#cb28-6" aria-hidden="true" tabindex="-1"></a>    <span class="at">month =</span> X3,</span>
+<span id="cb28-7"><a href="#cb28-7" aria-hidden="true" tabindex="-1"></a>    <span class="at">measurement =</span> X4) <span class="sc">|&gt;</span></span>
+<span id="cb28-8"><a href="#cb28-8" aria-hidden="true" tabindex="-1"></a>  <span class="fu">mutate</span>(</span>
+<span id="cb28-9"><a href="#cb28-9" aria-hidden="true" tabindex="-1"></a>    <span class="at">year =</span> <span class="fu">as.numeric</span>(year)) <span class="sc">|&gt;</span></span>
+<span id="cb28-10"><a href="#cb28-10" aria-hidden="true" tabindex="-1"></a>  <span class="fu">filter</span>(</span>
+<span id="cb28-11"><a href="#cb28-11" aria-hidden="true" tabindex="-1"></a>    measurement <span class="sc">==</span> <span class="st">"SNOW"</span>,</span>
+<span id="cb28-12"><a href="#cb28-12" aria-hidden="true" tabindex="-1"></a>    year <span class="sc">&gt;=</span> <span class="dv">1995</span>,</span>
+<span id="cb28-13"><a href="#cb28-13" aria-hidden="true" tabindex="-1"></a>    year <span class="sc">&lt;=</span> <span class="dv">2025</span>)</span>
+<span id="cb28-14"><a href="#cb28-14" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb28-15"><a href="#cb28-15" aria-hidden="true" tabindex="-1"></a>louisville <span class="sc">|&gt;</span></span>
+<span id="cb28-16"><a href="#cb28-16" aria-hidden="true" tabindex="-1"></a>  <span class="fu">select</span>(station_id, year, month, measurement) <span class="sc">|&gt;</span></span>
+<span id="cb28-17"><a href="#cb28-17" aria-hidden="true" tabindex="-1"></a>  <span class="fu">head</span>(<span class="dv">10</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="cell-output cell-output-stdout">
+<pre><code># A tibble: 10 × 4
+   station_id   year month measurement
+   &lt;chr&gt;       &lt;dbl&gt; &lt;chr&gt; &lt;chr&gt;      
+ 1 USW00093821  1995 01    SNOW       
+ 2 USW00093821  1995 02    SNOW       
+ 3 USW00093821  1995 03    SNOW       
+ 4 USW00093821  1995 04    SNOW       
+ 5 USW00093821  1995 05    SNOW       
+ 6 USW00093821  1995 06    SNOW       
+ 7 USW00093821  1995 07    SNOW       
+ 8 USW00093821  1995 08    SNOW       
+ 9 USW00093821  1995 09    SNOW       
+10 USW00093821  1995 10    SNOW       </code></pre>
+</div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb30"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb30-1"><a href="#cb30-1" aria-hidden="true" tabindex="-1"></a><span class="fu">nrow</span>(louisville)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>[1] 364</code></pre>
+</div>
+</div>
+<div class="cell">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb32"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb32-1"><a href="#cb32-1" aria-hidden="true" tabindex="-1"></a><span class="co">#Select daily snowfall columns</span></span>
+<span id="cb32-2"><a href="#cb32-2" aria-hidden="true" tabindex="-1"></a>louisville_daily <span class="ot">&lt;-</span> louisville <span class="sc">|&gt;</span></span>
+<span id="cb32-3"><a href="#cb32-3" aria-hidden="true" tabindex="-1"></a>  <span class="fu">select</span>(</span>
+<span id="cb32-4"><a href="#cb32-4" aria-hidden="true" tabindex="-1"></a>    station_id, year, month,</span>
+<span id="cb32-5"><a href="#cb32-5" aria-hidden="true" tabindex="-1"></a>    <span class="fu">all_of</span>(<span class="fu">paste0</span>(<span class="st">"X"</span>, <span class="dv">5</span> <span class="sc">+</span> <span class="dv">4</span> <span class="sc">*</span> (<span class="dv">0</span><span class="sc">:</span><span class="dv">30</span>)))) <span class="sc">|&gt;</span></span>
+<span id="cb32-6"><a href="#cb32-6" aria-hidden="true" tabindex="-1"></a>  <span class="fu">rename_with</span>(<span class="sc">~</span> <span class="fu">paste0</span>(<span class="st">"day_"</span>, <span class="dv">1</span><span class="sc">:</span><span class="dv">31</span>),</span>
+<span id="cb32-7"><a href="#cb32-7" aria-hidden="true" tabindex="-1"></a>    <span class="fu">starts_with</span>(<span class="st">"X"</span>))</span>
+<span id="cb32-8"><a href="#cb32-8" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb32-9"><a href="#cb32-9" aria-hidden="true" tabindex="-1"></a><span class="co">#Turn daily columns into rows</span></span>
+<span id="cb32-10"><a href="#cb32-10" aria-hidden="true" tabindex="-1"></a>louisville_daily <span class="ot">&lt;-</span> louisville_daily <span class="sc">|&gt;</span></span>
+<span id="cb32-11"><a href="#cb32-11" aria-hidden="true" tabindex="-1"></a>  <span class="fu">pivot_longer</span>(</span>
+<span id="cb32-12"><a href="#cb32-12" aria-hidden="true" tabindex="-1"></a>    <span class="at">cols =</span> <span class="fu">starts_with</span>(<span class="st">"day_"</span>),</span>
+<span id="cb32-13"><a href="#cb32-13" aria-hidden="true" tabindex="-1"></a>    <span class="at">names_to =</span> <span class="st">"day"</span>,</span>
+<span id="cb32-14"><a href="#cb32-14" aria-hidden="true" tabindex="-1"></a>    <span class="at">values_to =</span> <span class="st">"snowfall_mm"</span>) <span class="sc">|&gt;</span></span>
+<span id="cb32-15"><a href="#cb32-15" aria-hidden="true" tabindex="-1"></a>  <span class="fu">mutate</span>(</span>
+<span id="cb32-16"><a href="#cb32-16" aria-hidden="true" tabindex="-1"></a>    <span class="at">day =</span> <span class="fu">as.numeric</span>(<span class="fu">str_remove</span>(day, <span class="st">"day_"</span>)),</span>
+<span id="cb32-17"><a href="#cb32-17" aria-hidden="true" tabindex="-1"></a>    <span class="at">snowfall_mm =</span> <span class="fu">as.numeric</span>(snowfall_mm),</span>
+<span id="cb32-18"><a href="#cb32-18" aria-hidden="true" tabindex="-1"></a>    <span class="at">snowfall_mm =</span> <span class="fu">na_if</span>(snowfall_mm, <span class="sc">-</span><span class="dv">9999</span>),</span>
+<span id="cb32-19"><a href="#cb32-19" aria-hidden="true" tabindex="-1"></a>    <span class="at">date =</span> <span class="fu">as.Date</span>(<span class="fu">paste</span>(year, month, day, <span class="at">sep =</span> <span class="st">"-"</span>)),</span>
+<span id="cb32-20"><a href="#cb32-20" aria-hidden="true" tabindex="-1"></a>    <span class="at">snowfall_inches =</span> snowfall_mm <span class="sc">/</span> <span class="fl">25.4</span>) <span class="sc">|&gt;</span></span>
+<span id="cb32-21"><a href="#cb32-21" aria-hidden="true" tabindex="-1"></a>  <span class="fu">filter</span>(<span class="sc">!</span><span class="fu">is.na</span>(date)) <span class="sc">|&gt;</span></span>
+<span id="cb32-22"><a href="#cb32-22" aria-hidden="true" tabindex="-1"></a>  <span class="fu">select</span>(station_id, date, snowfall_inches)</span>
+<span id="cb32-23"><a href="#cb32-23" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb32-24"><a href="#cb32-24" aria-hidden="true" tabindex="-1"></a><span class="fu">head</span>(louisville_daily, <span class="dv">10</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="cell-output cell-output-stdout">
+<pre><code># A tibble: 10 × 3
+   station_id  date       snowfall_inches
+   &lt;chr&gt;       &lt;date&gt;               &lt;dbl&gt;
+ 1 USW00093821 1995-01-01               0
+ 2 USW00093821 1995-01-02               0
+ 3 USW00093821 1995-01-03               0
+ 4 USW00093821 1995-01-04               0
+ 5 USW00093821 1995-01-05               0
+ 6 USW00093821 1995-01-06               0
+ 7 USW00093821 1995-01-07               0
+ 8 USW00093821 1995-01-08               0
+ 9 USW00093821 1995-01-09               0
+10 USW00093821 1995-01-10               0</code></pre>
+</div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb34"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb34-1"><a href="#cb34-1" aria-hidden="true" tabindex="-1"></a><span class="fu">nrow</span>(louisville_daily)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>[1] 11080</code></pre>
+</div>
+</div>
+<div class="cell">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb36"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb36-1"><a href="#cb36-1" aria-hidden="true" tabindex="-1"></a><span class="co">#Duplicate station/date records</span></span>
+<span id="cb36-2"><a href="#cb36-2" aria-hidden="true" tabindex="-1"></a>louisville_daily <span class="sc">|&gt;</span></span>
+<span id="cb36-3"><a href="#cb36-3" aria-hidden="true" tabindex="-1"></a>  <span class="fu">count</span>(station_id, date) <span class="sc">|&gt;</span></span>
+<span id="cb36-4"><a href="#cb36-4" aria-hidden="true" tabindex="-1"></a>  <span class="fu">filter</span>(n <span class="sc">&gt;</span> <span class="dv">1</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="cell-output cell-output-stdout">
+<pre><code># A tibble: 0 × 3
+# ℹ 3 variables: station_id &lt;chr&gt;, date &lt;date&gt;, n &lt;int&gt;</code></pre>
+</div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb38"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb38-1"><a href="#cb38-1" aria-hidden="true" tabindex="-1"></a><span class="co">#Missing snowfall observations</span></span>
+<span id="cb38-2"><a href="#cb38-2" aria-hidden="true" tabindex="-1"></a>louisville_daily <span class="sc">|&gt;</span></span>
+<span id="cb38-3"><a href="#cb38-3" aria-hidden="true" tabindex="-1"></a>  <span class="fu">summarise</span>(</span>
+<span id="cb38-4"><a href="#cb38-4" aria-hidden="true" tabindex="-1"></a>    <span class="at">total_days =</span> <span class="fu">n</span>(),</span>
+<span id="cb38-5"><a href="#cb38-5" aria-hidden="true" tabindex="-1"></a>    <span class="at">missing_snowfall =</span> <span class="fu">sum</span>(<span class="fu">is.na</span>(snowfall_inches)),</span>
+<span id="cb38-6"><a href="#cb38-6" aria-hidden="true" tabindex="-1"></a>    <span class="at">missing_percent =</span> <span class="fu">mean</span>(<span class="fu">is.na</span>(snowfall_inches)) <span class="sc">*</span> <span class="dv">100</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="cell-output cell-output-stdout">
+<pre><code># A tibble: 1 × 3
+  total_days missing_snowfall missing_percent
+       &lt;int&gt;            &lt;int&gt;           &lt;dbl&gt;
+1      11080               48           0.433</code></pre>
+</div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb40"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb40-1"><a href="#cb40-1" aria-hidden="true" tabindex="-1"></a><span class="co">#Check for negative snowfall</span></span>
+<span id="cb40-2"><a href="#cb40-2" aria-hidden="true" tabindex="-1"></a>louisville_daily <span class="sc">|&gt;</span></span>
+<span id="cb40-3"><a href="#cb40-3" aria-hidden="true" tabindex="-1"></a>  <span class="fu">filter</span>(snowfall_inches <span class="sc">&lt;</span> <span class="dv">0</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="cell-output cell-output-stdout">
+<pre><code># A tibble: 0 × 3
+# ℹ 3 variables: station_id &lt;chr&gt;, date &lt;date&gt;, snowfall_inches &lt;dbl&gt;</code></pre>
+</div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb42"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb42-1"><a href="#cb42-1" aria-hidden="true" tabindex="-1"></a><span class="co">#Check parsing problems</span></span>
+<span id="cb42-2"><a href="#cb42-2" aria-hidden="true" tabindex="-1"></a><span class="fu">nrow</span>(<span class="fu">problems</span>(louisville))</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>[1] 0</code></pre>
+</div>
+</div>
+<div class="cell">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb44"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb44-1"><a href="#cb44-1" aria-hidden="true" tabindex="-1"></a><span class="co">#Check for missing dates</span></span>
+<span id="cb44-2"><a href="#cb44-2" aria-hidden="true" tabindex="-1"></a>louisville_daily <span class="sc">|&gt;</span></span>
+<span id="cb44-3"><a href="#cb44-3" aria-hidden="true" tabindex="-1"></a>  <span class="fu">summarise</span>(</span>
+<span id="cb44-4"><a href="#cb44-4" aria-hidden="true" tabindex="-1"></a>    <span class="at">missing_dates =</span> <span class="fu">sum</span>(<span class="fu">is.na</span>(date)),</span>
+<span id="cb44-5"><a href="#cb44-5" aria-hidden="true" tabindex="-1"></a>    <span class="at">first_date =</span> <span class="fu">min</span>(date),</span>
+<span id="cb44-6"><a href="#cb44-6" aria-hidden="true" tabindex="-1"></a>    <span class="at">last_date =</span> <span class="fu">max</span>(date))</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="cell-output cell-output-stdout">
+<pre><code># A tibble: 1 × 3
+  missing_dates first_date last_date 
+          &lt;int&gt; &lt;date&gt;     &lt;date&gt;    
+1             0 1995-01-01 2025-12-31</code></pre>
+</div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb46"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb46-1"><a href="#cb46-1" aria-hidden="true" tabindex="-1"></a><span class="co">#Check NOAA snowfall quality flags</span></span>
+<span id="cb46-2"><a href="#cb46-2" aria-hidden="true" tabindex="-1"></a>louisville <span class="sc">|&gt;</span></span>
+<span id="cb46-3"><a href="#cb46-3" aria-hidden="true" tabindex="-1"></a>  <span class="fu">select</span>(<span class="fu">all_of</span>(<span class="fu">paste0</span>(<span class="st">"X"</span>, <span class="dv">7</span> <span class="sc">+</span> <span class="dv">4</span> <span class="sc">*</span> (<span class="dv">0</span><span class="sc">:</span><span class="dv">30</span>)))) <span class="sc">|&gt;</span></span>
+<span id="cb46-4"><a href="#cb46-4" aria-hidden="true" tabindex="-1"></a>  <span class="fu">pivot_longer</span>(</span>
+<span id="cb46-5"><a href="#cb46-5" aria-hidden="true" tabindex="-1"></a>    <span class="at">cols =</span> <span class="fu">everything</span>(),</span>
+<span id="cb46-6"><a href="#cb46-6" aria-hidden="true" tabindex="-1"></a>    <span class="at">names_to =</span> <span class="st">"day"</span>,</span>
+<span id="cb46-7"><a href="#cb46-7" aria-hidden="true" tabindex="-1"></a>    <span class="at">values_to =</span> <span class="st">"quality_flag"</span>) <span class="sc">|&gt;</span></span>
+<span id="cb46-8"><a href="#cb46-8" aria-hidden="true" tabindex="-1"></a>  <span class="fu">count</span>(quality_flag)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="cell-output cell-output-stdout">
+<pre><code># A tibble: 2 × 2
+  quality_flag     n
+  &lt;chr&gt;        &lt;int&gt;
+1 I                2
+2 &lt;NA&gt;         11282</code></pre>
+</div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb48"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb48-1"><a href="#cb48-1" aria-hidden="true" tabindex="-1"></a><span class="co">#Check missing snowfall values</span></span>
+<span id="cb48-2"><a href="#cb48-2" aria-hidden="true" tabindex="-1"></a>louisville_daily <span class="sc">|&gt;</span></span>
+<span id="cb48-3"><a href="#cb48-3" aria-hidden="true" tabindex="-1"></a>  <span class="fu">summarise</span>(</span>
+<span id="cb48-4"><a href="#cb48-4" aria-hidden="true" tabindex="-1"></a>    <span class="at">missing_snowfall =</span> <span class="fu">sum</span>(<span class="fu">is.na</span>(snowfall_inches)))</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="cell-output cell-output-stdout">
+<pre><code># A tibble: 1 × 1
+  missing_snowfall
+             &lt;int&gt;
+1               48</code></pre>
+</div>
+</div>
+</section>
+<section id="buffalo" class="level2">
+<h2 class="anchored" data-anchor-id="buffalo">Buffalo</h2>
+<p>Next, we organized the snowfall records for Buffalo, New York. We selected Buffalo because it experiences significantly different winter weather conditions than Kentucky, particularly due to lake-effect snow. Using the same cleaning process, we created 11,323 daily observations, with 13 missing snowfall measurements. This will allow us to compare snowfall frequency and accumulation between Kentucky and a traditionally snowier region of the country.</p>
+<div class="cell">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb50"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb50-1"><a href="#cb50-1" aria-hidden="true" tabindex="-1"></a><span class="co">#Import Buffalo weather data</span></span>
+<span id="cb50-2"><a href="#cb50-2" aria-hidden="true" tabindex="-1"></a>buffalo <span class="ot">&lt;-</span> <span class="fu">read_fwf</span>(</span>
+<span id="cb50-3"><a href="#cb50-3" aria-hidden="true" tabindex="-1"></a>  <span class="st">"Raw GP/Buff NY.dly"</span>,</span>
+<span id="cb50-4"><a href="#cb50-4" aria-hidden="true" tabindex="-1"></a>  <span class="fu">fwf_widths</span>(</span>
+<span id="cb50-5"><a href="#cb50-5" aria-hidden="true" tabindex="-1"></a>    <span class="fu">c</span>(<span class="dv">11</span>, <span class="dv">4</span>, <span class="dv">2</span>, <span class="dv">4</span>, <span class="fu">rep</span>(<span class="fu">c</span>(<span class="dv">5</span>, <span class="dv">1</span>, <span class="dv">1</span>, <span class="dv">1</span>), <span class="dv">31</span>)),</span>
+<span id="cb50-6"><a href="#cb50-6" aria-hidden="true" tabindex="-1"></a>    <span class="at">col_names =</span> <span class="cn">NULL</span>),</span>
+<span id="cb50-7"><a href="#cb50-7" aria-hidden="true" tabindex="-1"></a>  <span class="at">col_types =</span> <span class="fu">cols</span>(<span class="at">.default =</span> <span class="fu">col_character</span>()),</span>
+<span id="cb50-8"><a href="#cb50-8" aria-hidden="true" tabindex="-1"></a>  <span class="at">show_col_types =</span> <span class="cn">FALSE</span>)</span>
+<span id="cb50-9"><a href="#cb50-9" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb50-10"><a href="#cb50-10" aria-hidden="true" tabindex="-1"></a><span class="fu">glimpse</span>(buffalo)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>Rows: 19,510
+Columns: 128
+$ X1   &lt;chr&gt; "USW00014733", "USW00014733", "USW00014733", "USW00014733", "USW0…
+$ X2   &lt;chr&gt; "1938", "1938", "1938", "1938", "1938", "1938", "1938", "1938", "…
+$ X3   &lt;chr&gt; "05", "05", "05", "06", "06", "06", "07", "07", "07", "08", "08",…
+$ X4   &lt;chr&gt; "TMAX", "TMIN", "PRCP", "TMAX", "TMIN", "PRCP", "TMAX", "TMIN", "…
+$ X5   &lt;chr&gt; "144", "39", "0", "261", "100", "0", "189", "156", "5", "256", "1…
+$ X6   &lt;chr&gt; NA, NA, "T", NA, NA, NA, NA, NA, NA, NA, NA, NA, NA, NA, NA, NA, …
+$ X7   &lt;chr&gt; NA, NA, NA, NA, NA, NA, NA, NA, NA, NA, NA, NA, NA, NA, NA, NA, N…
+$ X8   &lt;chr&gt; "0", "0", "0", "0", "0", "0", "0", "0", "0", "0", "0", "0", "0", …
+$ X9   &lt;chr&gt; "211", "83", "0", "222", "133", "8", "239", "133", "48", "289", "…
+$ X10  &lt;chr&gt; NA, NA, "T", NA, NA, NA, NA, NA, NA, NA, NA, NA, NA, NA, NA, NA, …
+$ X11  &lt;chr&gt; NA, NA, NA, NA, NA, NA, NA, NA, NA, NA, NA, NA, NA, NA, NA, NA, N…
+$ X12  &lt;chr&gt; "0", "0", "0", "0", "0", "0", "0", "0", "0", "0", "0", "0", "0", …
+$ X13  &lt;chr&gt; "167", "72", "25", "211", "100", "64", "228", "100", "0", "322", …
+$ X14  &lt;chr&gt; NA, NA, NA, NA, NA, NA, NA, NA, NA, NA, NA, NA, NA, NA, NA, NA, N…
+$ X15  &lt;chr&gt; NA, NA, NA, NA, NA, NA, NA, NA, NA, NA, NA, NA, NA, NA, NA, NA, N…
+$ X16  &lt;chr&gt; "0", "0", "0", "0", "0", "0", "0", "0", "0", "0", "0", "0", "0", …
+$ X17  &lt;chr&gt; "206", "94", "112", "250", "100", "0", "261", "89", "0", "300", "…
+$ X18  &lt;chr&gt; NA, NA, NA, NA, NA, NA, NA, NA, NA, NA, NA, NA, NA, NA, NA, NA, N…
+$ X19  &lt;chr&gt; NA, NA, NA, NA, NA, NA, NA, NA, NA, NA, NA, NA, NA, NA, NA, NA, N…
+$ X20  &lt;chr&gt; "0", "0", "0", "0", "0", "0", "0", "0", "0", "0", "0", "0", "0", …
+$ X21  &lt;chr&gt; "311", "106", "0", "200", "100", "43", "256", "111", "0", "311", …
+$ X22  &lt;chr&gt; NA, NA, "T", NA, NA, NA, NA, NA, NA, NA, NA, "T", NA, NA, NA, NA,…
+$ X23  &lt;chr&gt; NA, NA, NA, NA, NA, NA, NA, NA, NA, NA, NA, NA, NA, NA, NA, NA, N…
+$ X24  &lt;chr&gt; "0", "0", "0", "0", "0", "0", "0", "0", "0", "0", "0", "0", "0", …
+$ X25  &lt;chr&gt; "194", "78", "64", "250", "111", "43", "272", "139", "0", "289", …
+$ X26  &lt;chr&gt; NA, NA, NA, NA, NA, NA, NA, NA, NA, NA, NA, NA, NA, NA, NA, NA, N…
+$ X27  &lt;chr&gt; NA, NA, NA, NA, NA, NA, NA, NA, NA, NA, NA, NA, NA, NA, NA, NA, N…
+$ X28  &lt;chr&gt; "0", "0", "0", "0", "0", "0", "0", "0", "0", "0", "0", "0", "0", …
+$ X29  &lt;chr&gt; "128", "67", "0", "222", "122", "5", "300", "117", "0", "317", "1…
+$ X30  &lt;chr&gt; NA, NA, NA, NA, NA, NA, NA, NA, NA, NA, NA, NA, NA, NA, NA, NA, N…
+$ X31  &lt;chr&gt; NA, NA, NA, NA, NA, NA, NA, NA, NA, NA, NA, NA, NA, NA, NA, NA, N…
+$ X32  &lt;chr&gt; "0", "0", "0", "0", "0", "0", "0", "0", "0", "0", "0", "0", "0", …
+$ X33  &lt;chr&gt; "161", "67", "0", "206", "100", "28", "322", "206", "0", "306", "…
+$ X34  &lt;chr&gt; NA, NA, "T", NA, NA, NA, NA, NA, "T", NA, NA, NA, NA, NA, NA, NA,…
+$ X35  &lt;chr&gt; NA, NA, NA, NA, NA, NA, NA, NA, NA, NA, NA, NA, NA, NA, NA, NA, N…
+$ X36  &lt;chr&gt; "0", "0", "0", "0", "0", "0", "0", "0", "0", "0", "0", "0", "0", …
+$ X37  &lt;chr&gt; "122", "67", "5", "217", "89", "0", "289", "200", "3", "300", "17…
+$ X38  &lt;chr&gt; NA, NA, NA, NA, NA, "T", NA, NA, NA, NA, NA, NA, NA, NA, NA, NA, …
+$ X39  &lt;chr&gt; NA, NA, NA, NA, NA, NA, NA, NA, NA, NA, NA, NA, NA, NA, NA, NA, N…
+$ X40  &lt;chr&gt; "0", "0", "0", "0", "0", "0", "0", "0", "0", "0", "0", "0", "0", …
+$ X41  &lt;chr&gt; "100", "50", "41", "244", "94", "0", "294", "178", "0", "267", "1…
+$ X42  &lt;chr&gt; NA, NA, NA, NA, NA, NA, NA, NA, "T", NA, NA, "T", NA, NA, NA, NA,…
+$ X43  &lt;chr&gt; NA, NA, NA, NA, NA, NA, NA, NA, NA, NA, NA, NA, NA, NA, NA, NA, N…
+$ X44  &lt;chr&gt; "0", "0", "0", "0", "0", "0", "0", "0", "0", "0", "0", "0", "0", …
+$ X45  &lt;chr&gt; "94", "22", "0", "267", "178", "178", "261", "183", "132", "267",…
+$ X46  &lt;chr&gt; NA, NA, "T", NA, NA, NA, NA, NA, NA, NA, NA, NA, NA, NA, NA, NA, …
+$ X47  &lt;chr&gt; NA, NA, NA, NA, NA, NA, NA, NA, NA, NA, NA, NA, NA, NA, NA, NA, N…
+$ X48  &lt;chr&gt; "0", "0", "0", "0", "0", "0", "0", "0", "0", "0", "0", "0", "0", …
+$ X49  &lt;chr&gt; "89", "17", "10", "189", "117", "15", "283", "183", "66", "250", …
+$ X50  &lt;chr&gt; NA, NA, NA, NA, NA, NA, NA, NA, NA, NA, NA, NA, NA, NA, NA, NA, N…
+$ X51  &lt;chr&gt; NA, NA, NA, NA, NA, NA, NA, NA, NA, NA, NA, NA, NA, NA, NA, NA, N…
+$ X52  &lt;chr&gt; "0", "0", "0", "0", "0", "0", "0", "0", "0", "0", "0", "0", "0", …
+$ X53  &lt;chr&gt; "122", "17", "10", "228", "106", "163", "294", "161", "0", "267",…
+$ X54  &lt;chr&gt; NA, NA, NA, NA, NA, NA, NA, NA, NA, NA, NA, NA, NA, NA, NA, NA, N…
+$ X55  &lt;chr&gt; NA, NA, NA, NA, NA, NA, NA, NA, NA, NA, NA, NA, NA, NA, NA, NA, N…
+$ X56  &lt;chr&gt; "0", "0", "0", "0", "0", "0", "0", "0", "0", "0", "0", "0", "0", …
+$ X57  &lt;chr&gt; "172", "11", "0", "267", "117", "10", "278", "189", "0", "294", "…
+$ X58  &lt;chr&gt; NA, NA, NA, NA, NA, NA, NA, NA, NA, NA, NA, NA, NA, NA, NA, NA, N…
+$ X59  &lt;chr&gt; NA, NA, NA, NA, NA, NA, NA, NA, NA, NA, NA, NA, NA, NA, NA, NA, N…
+$ X60  &lt;chr&gt; "0", "0", "0", "0", "0", "0", "0", "0", "0", "0", "0", "0", "0", …
+$ X61  &lt;chr&gt; "144", "67", "127", "283", "111", "0", "217", "144", "10", "306",…
+$ X62  &lt;chr&gt; NA, NA, NA, NA, NA, NA, NA, NA, NA, NA, NA, NA, NA, NA, NA, NA, N…
+$ X63  &lt;chr&gt; NA, NA, NA, NA, NA, NA, NA, NA, NA, NA, NA, NA, NA, NA, NA, NA, N…
+$ X64  &lt;chr&gt; "0", "0", "0", "0", "0", "0", "0", "0", "0", "0", "0", "0", "0", …
+$ X65  &lt;chr&gt; "183", "44", "10", "272", "156", "0", "256", "128", "0", "317", "…
+$ X66  &lt;chr&gt; NA, NA, NA, NA, NA, NA, NA, NA, NA, NA, NA, NA, NA, NA, NA, NA, N…
+$ X67  &lt;chr&gt; NA, NA, NA, NA, NA, NA, NA, NA, NA, NA, NA, NA, NA, NA, NA, NA, N…
+$ X68  &lt;chr&gt; "0", "0", "0", "0", "0", "0", "0", "0", "0", "0", "0", "0", "0", …
+$ X69  &lt;chr&gt; "167", "89", "15", "222", "156", "0", "272", "189", "0", "283", "…
+$ X70  &lt;chr&gt; NA, NA, NA, NA, NA, NA, NA, NA, NA, NA, NA, NA, NA, NA, NA, NA, N…
+$ X71  &lt;chr&gt; NA, NA, NA, NA, NA, NA, NA, NA, NA, NA, NA, NA, NA, NA, NA, NA, N…
+$ X72  &lt;chr&gt; "0", "0", "0", "0", "0", "0", "0", "0", "0", "0", "0", "0", "0", …
+$ X73  &lt;chr&gt; "233", "78", "0", "228", "133", "18", "261", "172", "64", "272", …
+$ X74  &lt;chr&gt; NA, NA, NA, NA, NA, NA, NA, NA, NA, NA, NA, NA, NA, NA, NA, NA, N…
+$ X75  &lt;chr&gt; NA, NA, NA, NA, NA, NA, NA, NA, NA, NA, NA, NA, NA, NA, NA, NA, N…
+$ X76  &lt;chr&gt; "0", "0", "0", "0", "0", "0", "0", "0", "0", "0", "0", "0", "0", …
+$ X77  &lt;chr&gt; "189", "106", "0", "189", "122", "0", "283", "144", "0", "306", "…
+$ X78  &lt;chr&gt; NA, NA, "T", NA, NA, NA, NA, NA, "T", NA, NA, NA, NA, NA, NA, NA,…
+$ X79  &lt;chr&gt; NA, NA, NA, NA, NA, NA, NA, NA, NA, NA, NA, NA, NA, NA, NA, NA, N…
+$ X80  &lt;chr&gt; "0", "0", "0", "0", "0", "0", "0", "0", "0", "0", "0", "0", "0", …
+$ X81  &lt;chr&gt; "206", "111", "145", "306", "100", "0", "306", "150", "0", "311",…
+$ X82  &lt;chr&gt; NA, NA, NA, NA, NA, "T", NA, NA, NA, NA, NA, NA, NA, NA, NA, NA, …
+$ X83  &lt;chr&gt; NA, NA, NA, NA, NA, NA, NA, NA, NA, NA, NA, NA, NA, NA, NA, NA, N…
+$ X84  &lt;chr&gt; "0", "0", "0", "0", "0", "0", "0", "0", "0", "0", "0", "0", "0", …
+$ X85  &lt;chr&gt; "172", "106", "0", "317", "144", "0", "250", "183", "0", "300", "…
+$ X86  &lt;chr&gt; NA, NA, "T", NA, NA, NA, NA, NA, NA, NA, NA, NA, NA, NA, NA, NA, …
+$ X87  &lt;chr&gt; NA, NA, NA, NA, NA, NA, NA, NA, NA, NA, NA, NA, NA, NA, NA, NA, N…
+$ X88  &lt;chr&gt; "0", "0", "0", "0", "0", "0", "0", "0", "0", "0", "0", "0", "0", …
+$ X89  &lt;chr&gt; "222", "94", "0", "317", "156", "0", "294", "178", "64", "283", "…
+$ X90  &lt;chr&gt; NA, NA, "T", NA, NA, NA, NA, NA, NA, NA, NA, NA, NA, NA, NA, NA, …
+$ X91  &lt;chr&gt; NA, NA, NA, NA, NA, NA, NA, NA, NA, NA, NA, NA, NA, NA, NA, NA, N…
+$ X92  &lt;chr&gt; "0", "0", "0", "0", "0", "0", "0", "0", "0", "0", "0", "0", "0", …
+$ X93  &lt;chr&gt; "239", "100", "0", "289", "172", "0", "261", "178", "99", "261", …
+$ X94  &lt;chr&gt; NA, NA, NA, NA, NA, NA, NA, NA, NA, NA, NA, NA, NA, NA, NA, NA, N…
+$ X95  &lt;chr&gt; NA, NA, NA, NA, NA, NA, NA, NA, NA, NA, NA, NA, NA, NA, NA, NA, N…
+$ X96  &lt;chr&gt; "0", "0", "0", "0", "0", "0", "0", "0", "0", "0", "0", "0", "0", …
+$ X97  &lt;chr&gt; "128", "44", "104", "311", "172", "0", "311", "156", "0", "228", …
+$ X98  &lt;chr&gt; NA, NA, NA, NA, NA, NA, NA, NA, NA, NA, NA, NA, NA, NA, NA, NA, N…
+$ X99  &lt;chr&gt; NA, NA, NA, NA, NA, NA, NA, NA, NA, NA, NA, NA, NA, NA, NA, NA, N…
+$ X100 &lt;chr&gt; "0", "0", "0", "0", "0", "0", "0", "0", "0", "0", "0", "0", "0", …
+$ X101 &lt;chr&gt; "217", "6", "0", "294", "150", "0", "306", "172", "0", "211", "11…
+$ X102 &lt;chr&gt; NA, NA, "T", NA, NA, NA, NA, NA, NA, NA, NA, NA, NA, NA, "T", NA,…
+$ X103 &lt;chr&gt; NA, NA, NA, NA, NA, NA, NA, NA, NA, NA, NA, NA, NA, NA, NA, NA, N…
+$ X104 &lt;chr&gt; "0", "0", "0", "0", "0", "0", "0", "0", "0", "0", "0", "0", "0", …
+$ X105 &lt;chr&gt; "244", "94", "0", "161", "133", "132", "317", "200", "0", "239", …
+$ X106 &lt;chr&gt; NA, NA, NA, NA, NA, NA, NA, NA, NA, NA, NA, NA, NA, NA, NA, NA, N…
+$ X107 &lt;chr&gt; NA, NA, NA, NA, NA, NA, NA, NA, NA, NA, NA, NA, NA, NA, NA, NA, N…
+$ X108 &lt;chr&gt; "0", "0", "0", "0", "0", "0", "0", "0", "0", "0", "0", "0", "0", …
+$ X109 &lt;chr&gt; "256", "106", "0", "206", "122", "3", "294", "183", "0", "256", "…
+$ X110 &lt;chr&gt; NA, NA, NA, NA, NA, NA, NA, NA, "T", NA, NA, "T", NA, NA, NA, NA,…
+$ X111 &lt;chr&gt; NA, NA, NA, NA, NA, NA, NA, NA, NA, NA, NA, NA, NA, NA, NA, NA, N…
+$ X112 &lt;chr&gt; "0", "0", "0", "0", "0", "0", "0", "0", "0", "0", "0", "0", "0", …
+$ X113 &lt;chr&gt; "244", "128", "0", "222", "100", "0", "311", "194", "0", "250", "…
+$ X114 &lt;chr&gt; NA, NA, NA, NA, NA, NA, NA, NA, "T", NA, NA, NA, NA, NA, NA, NA, …
+$ X115 &lt;chr&gt; NA, NA, NA, NA, NA, NA, NA, NA, NA, NA, NA, NA, NA, NA, NA, NA, N…
+$ X116 &lt;chr&gt; "0", "0", "0", "0", "0", "0", "0", "0", "0", "0", "0", "0", "0", …
+$ X117 &lt;chr&gt; "256", "150", "0", "256", "94", "0", "261", "211", "0", "278", "1…
+$ X118 &lt;chr&gt; NA, NA, NA, NA, NA, NA, NA, NA, "T", NA, NA, NA, NA, NA, NA, NA, …
+$ X119 &lt;chr&gt; NA, NA, NA, NA, NA, NA, NA, NA, NA, NA, NA, NA, NA, NA, NA, NA, N…
+$ X120 &lt;chr&gt; "0", "0", "0", "0", "0", "0", "0", "0", "0", "0", "0", "0", "0", …
+$ X121 &lt;chr&gt; "239", "128", "61", "250", "133", "0", "283", "167", "0", "189", …
+$ X122 &lt;chr&gt; NA, NA, NA, NA, NA, NA, NA, NA, NA, NA, NA, "T", NA, NA, NA, NA, …
+$ X123 &lt;chr&gt; NA, NA, NA, NA, NA, NA, NA, NA, NA, NA, NA, NA, NA, NA, NA, NA, N…
+$ X124 &lt;chr&gt; "0", "0", "0", "0", "0", "0", "0", "0", "0", "0", "0", "0", "0", …
+$ X125 &lt;chr&gt; "233", "94", "0", "-9999", "-9999", "-9999", "278", "167", "0", "…
+$ X126 &lt;chr&gt; NA, NA, NA, NA, NA, NA, NA, NA, NA, NA, NA, NA, NA, NA, NA, NA, N…
+$ X127 &lt;chr&gt; NA, NA, NA, NA, NA, NA, NA, NA, NA, NA, NA, NA, NA, NA, NA, NA, N…
+$ X128 &lt;chr&gt; "0", "0", "0", NA, NA, NA, "0", "0", "0", "0", "0", "0", NA, NA, …</code></pre>
+</div>
+</div>
+<div class="cell">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb52"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb52-1"><a href="#cb52-1" aria-hidden="true" tabindex="-1"></a><span class="co">#Keep Buffalo snowfall records from 1995-2025</span></span>
+<span id="cb52-2"><a href="#cb52-2" aria-hidden="true" tabindex="-1"></a>buffalo <span class="ot">&lt;-</span> buffalo <span class="sc">|&gt;</span></span>
+<span id="cb52-3"><a href="#cb52-3" aria-hidden="true" tabindex="-1"></a>  <span class="fu">rename</span>(</span>
+<span id="cb52-4"><a href="#cb52-4" aria-hidden="true" tabindex="-1"></a>    <span class="at">station_id =</span> X1,</span>
+<span id="cb52-5"><a href="#cb52-5" aria-hidden="true" tabindex="-1"></a>    <span class="at">year =</span> X2,</span>
+<span id="cb52-6"><a href="#cb52-6" aria-hidden="true" tabindex="-1"></a>    <span class="at">month =</span> X3,</span>
+<span id="cb52-7"><a href="#cb52-7" aria-hidden="true" tabindex="-1"></a>    <span class="at">measurement =</span> X4) <span class="sc">|&gt;</span></span>
+<span id="cb52-8"><a href="#cb52-8" aria-hidden="true" tabindex="-1"></a>  <span class="fu">mutate</span>(</span>
+<span id="cb52-9"><a href="#cb52-9" aria-hidden="true" tabindex="-1"></a>    <span class="at">year =</span> <span class="fu">as.numeric</span>(year)) <span class="sc">|&gt;</span></span>
+<span id="cb52-10"><a href="#cb52-10" aria-hidden="true" tabindex="-1"></a>  <span class="fu">filter</span>(</span>
+<span id="cb52-11"><a href="#cb52-11" aria-hidden="true" tabindex="-1"></a>    measurement <span class="sc">==</span> <span class="st">"SNOW"</span>,</span>
+<span id="cb52-12"><a href="#cb52-12" aria-hidden="true" tabindex="-1"></a>    year <span class="sc">&gt;=</span> <span class="dv">1995</span>,</span>
+<span id="cb52-13"><a href="#cb52-13" aria-hidden="true" tabindex="-1"></a>    year <span class="sc">&lt;=</span> <span class="dv">2025</span>)</span>
+<span id="cb52-14"><a href="#cb52-14" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb52-15"><a href="#cb52-15" aria-hidden="true" tabindex="-1"></a>buffalo <span class="sc">|&gt;</span></span>
+<span id="cb52-16"><a href="#cb52-16" aria-hidden="true" tabindex="-1"></a>  <span class="fu">select</span>(station_id, year, month, measurement) <span class="sc">|&gt;</span></span>
+<span id="cb52-17"><a href="#cb52-17" aria-hidden="true" tabindex="-1"></a>  <span class="fu">head</span>(<span class="dv">10</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="cell-output cell-output-stdout">
+<pre><code># A tibble: 10 × 4
+   station_id   year month measurement
+   &lt;chr&gt;       &lt;dbl&gt; &lt;chr&gt; &lt;chr&gt;      
+ 1 USW00014733  1995 01    SNOW       
+ 2 USW00014733  1995 02    SNOW       
+ 3 USW00014733  1995 03    SNOW       
+ 4 USW00014733  1995 04    SNOW       
+ 5 USW00014733  1995 05    SNOW       
+ 6 USW00014733  1995 06    SNOW       
+ 7 USW00014733  1995 07    SNOW       
+ 8 USW00014733  1995 08    SNOW       
+ 9 USW00014733  1995 09    SNOW       
+10 USW00014733  1995 10    SNOW       </code></pre>
+</div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb54"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb54-1"><a href="#cb54-1" aria-hidden="true" tabindex="-1"></a><span class="fu">nrow</span>(buffalo)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>[1] 372</code></pre>
+</div>
+</div>
+<div class="cell">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb56"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb56-1"><a href="#cb56-1" aria-hidden="true" tabindex="-1"></a><span class="co">#Select the daily snowfall columns</span></span>
+<span id="cb56-2"><a href="#cb56-2" aria-hidden="true" tabindex="-1"></a>buffalo_daily <span class="ot">&lt;-</span> buffalo <span class="sc">|&gt;</span></span>
+<span id="cb56-3"><a href="#cb56-3" aria-hidden="true" tabindex="-1"></a>  <span class="fu">select</span>(</span>
+<span id="cb56-4"><a href="#cb56-4" aria-hidden="true" tabindex="-1"></a>    station_id, year, month,</span>
+<span id="cb56-5"><a href="#cb56-5" aria-hidden="true" tabindex="-1"></a>    <span class="fu">all_of</span>(<span class="fu">paste0</span>(<span class="st">"X"</span>, <span class="dv">5</span> <span class="sc">+</span> <span class="dv">4</span> <span class="sc">*</span> (<span class="dv">0</span><span class="sc">:</span><span class="dv">30</span>)))) <span class="sc">|&gt;</span></span>
+<span id="cb56-6"><a href="#cb56-6" aria-hidden="true" tabindex="-1"></a>  <span class="fu">rename_with</span>(<span class="sc">~</span> <span class="fu">paste0</span>(<span class="st">"day_"</span>, <span class="dv">1</span><span class="sc">:</span><span class="dv">31</span>),</span>
+<span id="cb56-7"><a href="#cb56-7" aria-hidden="true" tabindex="-1"></a>    <span class="fu">starts_with</span>(<span class="st">"X"</span>))</span>
+<span id="cb56-8"><a href="#cb56-8" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb56-9"><a href="#cb56-9" aria-hidden="true" tabindex="-1"></a><span class="co">#Turn daily columns into rows</span></span>
+<span id="cb56-10"><a href="#cb56-10" aria-hidden="true" tabindex="-1"></a>buffalo_daily <span class="ot">&lt;-</span> buffalo_daily <span class="sc">|&gt;</span></span>
+<span id="cb56-11"><a href="#cb56-11" aria-hidden="true" tabindex="-1"></a>  <span class="fu">pivot_longer</span>(</span>
+<span id="cb56-12"><a href="#cb56-12" aria-hidden="true" tabindex="-1"></a>    <span class="at">cols =</span> <span class="fu">starts_with</span>(<span class="st">"day_"</span>),</span>
+<span id="cb56-13"><a href="#cb56-13" aria-hidden="true" tabindex="-1"></a>    <span class="at">names_to =</span> <span class="st">"day"</span>,</span>
+<span id="cb56-14"><a href="#cb56-14" aria-hidden="true" tabindex="-1"></a>    <span class="at">values_to =</span> <span class="st">"snowfall_mm"</span>) <span class="sc">|&gt;</span></span>
+<span id="cb56-15"><a href="#cb56-15" aria-hidden="true" tabindex="-1"></a>  <span class="fu">mutate</span>(</span>
+<span id="cb56-16"><a href="#cb56-16" aria-hidden="true" tabindex="-1"></a>    <span class="at">day =</span> <span class="fu">as.numeric</span>(<span class="fu">str_remove</span>(day, <span class="st">"day_"</span>)),</span>
+<span id="cb56-17"><a href="#cb56-17" aria-hidden="true" tabindex="-1"></a>    <span class="at">snowfall_mm =</span> <span class="fu">as.numeric</span>(snowfall_mm),</span>
+<span id="cb56-18"><a href="#cb56-18" aria-hidden="true" tabindex="-1"></a>    <span class="at">snowfall_mm =</span> <span class="fu">na_if</span>(snowfall_mm, <span class="sc">-</span><span class="dv">9999</span>),</span>
+<span id="cb56-19"><a href="#cb56-19" aria-hidden="true" tabindex="-1"></a>    <span class="at">date =</span> <span class="fu">as.Date</span>(<span class="fu">paste</span>(year, month, day, <span class="at">sep =</span> <span class="st">"-"</span>)),</span>
+<span id="cb56-20"><a href="#cb56-20" aria-hidden="true" tabindex="-1"></a>    <span class="at">snowfall_inches =</span> snowfall_mm <span class="sc">/</span> <span class="fl">25.4</span>) <span class="sc">|&gt;</span></span>
+<span id="cb56-21"><a href="#cb56-21" aria-hidden="true" tabindex="-1"></a>  <span class="fu">filter</span>(<span class="sc">!</span><span class="fu">is.na</span>(date)) <span class="sc">|&gt;</span></span>
+<span id="cb56-22"><a href="#cb56-22" aria-hidden="true" tabindex="-1"></a>  <span class="fu">select</span>(station_id, date, snowfall_inches)</span>
+<span id="cb56-23"><a href="#cb56-23" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb56-24"><a href="#cb56-24" aria-hidden="true" tabindex="-1"></a><span class="fu">head</span>(buffalo_daily, <span class="dv">10</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="cell-output cell-output-stdout">
+<pre><code># A tibble: 10 × 3
+   station_id  date       snowfall_inches
+   &lt;chr&gt;       &lt;date&gt;               &lt;dbl&gt;
+ 1 USW00014733 1995-01-01            0   
+ 2 USW00014733 1995-01-02            0   
+ 3 USW00014733 1995-01-03           11.1 
+ 4 USW00014733 1995-01-04            0   
+ 5 USW00014733 1995-01-05            3.19
+ 6 USW00014733 1995-01-06            1.30
+ 7 USW00014733 1995-01-07            1.42
+ 8 USW00014733 1995-01-08            1.69
+ 9 USW00014733 1995-01-09            0   
+10 USW00014733 1995-01-10            0   </code></pre>
+</div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb58"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb58-1"><a href="#cb58-1" aria-hidden="true" tabindex="-1"></a><span class="fu">nrow</span>(buffalo_daily)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>[1] 11323</code></pre>
+</div>
+</div>
+<div class="cell">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb60"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb60-1"><a href="#cb60-1" aria-hidden="true" tabindex="-1"></a><span class="co">#Check duplicates</span></span>
+<span id="cb60-2"><a href="#cb60-2" aria-hidden="true" tabindex="-1"></a>buffalo_daily <span class="sc">|&gt;</span></span>
+<span id="cb60-3"><a href="#cb60-3" aria-hidden="true" tabindex="-1"></a>  <span class="fu">count</span>(station_id, date) <span class="sc">|&gt;</span></span>
+<span id="cb60-4"><a href="#cb60-4" aria-hidden="true" tabindex="-1"></a>  <span class="fu">filter</span>(n <span class="sc">&gt;</span> <span class="dv">1</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="cell-output cell-output-stdout">
+<pre><code># A tibble: 0 × 3
+# ℹ 3 variables: station_id &lt;chr&gt;, date &lt;date&gt;, n &lt;int&gt;</code></pre>
+</div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb62"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb62-1"><a href="#cb62-1" aria-hidden="true" tabindex="-1"></a><span class="co">#Check missing values</span></span>
+<span id="cb62-2"><a href="#cb62-2" aria-hidden="true" tabindex="-1"></a>buffalo_daily <span class="sc">|&gt;</span></span>
+<span id="cb62-3"><a href="#cb62-3" aria-hidden="true" tabindex="-1"></a>  <span class="fu">summarise</span>(</span>
+<span id="cb62-4"><a href="#cb62-4" aria-hidden="true" tabindex="-1"></a>    <span class="at">total_days =</span> <span class="fu">n</span>(),</span>
+<span id="cb62-5"><a href="#cb62-5" aria-hidden="true" tabindex="-1"></a>    <span class="at">missing_snowfall =</span> <span class="fu">sum</span>(<span class="fu">is.na</span>(snowfall_inches)),</span>
+<span id="cb62-6"><a href="#cb62-6" aria-hidden="true" tabindex="-1"></a>    <span class="at">missing_percent =</span> <span class="fu">mean</span>(<span class="fu">is.na</span>(snowfall_inches)) <span class="sc">*</span> <span class="dv">100</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="cell-output cell-output-stdout">
+<pre><code># A tibble: 1 × 3
+  total_days missing_snowfall missing_percent
+       &lt;int&gt;            &lt;int&gt;           &lt;dbl&gt;
+1      11323               13           0.115</code></pre>
+</div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb64"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb64-1"><a href="#cb64-1" aria-hidden="true" tabindex="-1"></a><span class="co">#Check negative snowfall</span></span>
+<span id="cb64-2"><a href="#cb64-2" aria-hidden="true" tabindex="-1"></a>buffalo_daily <span class="sc">|&gt;</span></span>
+<span id="cb64-3"><a href="#cb64-3" aria-hidden="true" tabindex="-1"></a>  <span class="fu">filter</span>(snowfall_inches <span class="sc">&lt;</span> <span class="dv">0</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="cell-output cell-output-stdout">
+<pre><code># A tibble: 0 × 3
+# ℹ 3 variables: station_id &lt;chr&gt;, date &lt;date&gt;, snowfall_inches &lt;dbl&gt;</code></pre>
+</div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb66"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb66-1"><a href="#cb66-1" aria-hidden="true" tabindex="-1"></a><span class="co">#Check date range</span></span>
+<span id="cb66-2"><a href="#cb66-2" aria-hidden="true" tabindex="-1"></a>buffalo_daily <span class="sc">|&gt;</span></span>
+<span id="cb66-3"><a href="#cb66-3" aria-hidden="true" tabindex="-1"></a>  <span class="fu">summarise</span>(</span>
+<span id="cb66-4"><a href="#cb66-4" aria-hidden="true" tabindex="-1"></a>    <span class="at">first_date =</span> <span class="fu">min</span>(date),</span>
+<span id="cb66-5"><a href="#cb66-5" aria-hidden="true" tabindex="-1"></a>    <span class="at">last_date =</span> <span class="fu">max</span>(date))</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="cell-output cell-output-stdout">
+<pre><code># A tibble: 1 × 2
+  first_date last_date 
+  &lt;date&gt;     &lt;date&gt;    
+1 1995-01-01 2025-12-31</code></pre>
+</div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb68"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb68-1"><a href="#cb68-1" aria-hidden="true" tabindex="-1"></a><span class="co">#Check parsing problems</span></span>
+<span id="cb68-2"><a href="#cb68-2" aria-hidden="true" tabindex="-1"></a><span class="fu">nrow</span>(<span class="fu">problems</span>(buffalo))</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>[1] 0</code></pre>
+</div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb70"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb70-1"><a href="#cb70-1" aria-hidden="true" tabindex="-1"></a><span class="co">#Check quality flags</span></span>
+<span id="cb70-2"><a href="#cb70-2" aria-hidden="true" tabindex="-1"></a>buffalo <span class="sc">|&gt;</span></span>
+<span id="cb70-3"><a href="#cb70-3" aria-hidden="true" tabindex="-1"></a>  <span class="fu">select</span>(<span class="fu">all_of</span>(<span class="fu">paste0</span>(<span class="st">"X"</span>, <span class="dv">7</span> <span class="sc">+</span> <span class="dv">4</span> <span class="sc">*</span> (<span class="dv">0</span><span class="sc">:</span><span class="dv">30</span>)))) <span class="sc">|&gt;</span></span>
+<span id="cb70-4"><a href="#cb70-4" aria-hidden="true" tabindex="-1"></a>  <span class="fu">pivot_longer</span>(</span>
+<span id="cb70-5"><a href="#cb70-5" aria-hidden="true" tabindex="-1"></a>    <span class="at">cols =</span> <span class="fu">everything</span>(),</span>
+<span id="cb70-6"><a href="#cb70-6" aria-hidden="true" tabindex="-1"></a>    <span class="at">names_to =</span> <span class="st">"day"</span>,</span>
+<span id="cb70-7"><a href="#cb70-7" aria-hidden="true" tabindex="-1"></a>    <span class="at">values_to =</span> <span class="st">"quality_flag"</span>) <span class="sc">|&gt;</span></span>
+<span id="cb70-8"><a href="#cb70-8" aria-hidden="true" tabindex="-1"></a>  <span class="fu">count</span>(quality_flag)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="cell-output cell-output-stdout">
+<pre><code># A tibble: 1 × 2
+  quality_flag     n
+  &lt;chr&gt;        &lt;int&gt;
+1 &lt;NA&gt;         11532</code></pre>
+</div>
+</div>
+</section>
+<section id="minneapolis" class="level2">
+<h2 class="anchored" data-anchor-id="minneapolis">Minneapolis</h2>
+<p>We then repeated the process for Minneapolis, Minnesota, to represent the upper Midwest. Minneapolis had 9,985 daily observations and no missing snowfall values within those records. However, it had fewer monthly records than the other cities, meaning some dates may be absent from the dataset entirely. This is something we will need to consider when comparing snowfall totals across different winters.</p>
+<div class="cell">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb72"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb72-1"><a href="#cb72-1" aria-hidden="true" tabindex="-1"></a><span class="co">#Import Minneapolis weather data</span></span>
+<span id="cb72-2"><a href="#cb72-2" aria-hidden="true" tabindex="-1"></a>minneapolis <span class="ot">&lt;-</span> <span class="fu">read_fwf</span>(</span>
+<span id="cb72-3"><a href="#cb72-3" aria-hidden="true" tabindex="-1"></a>  <span class="st">"Raw GP/Minneapolis, MN.dly"</span>,</span>
+<span id="cb72-4"><a href="#cb72-4" aria-hidden="true" tabindex="-1"></a>  <span class="fu">fwf_widths</span>(</span>
+<span id="cb72-5"><a href="#cb72-5" aria-hidden="true" tabindex="-1"></a>    <span class="fu">c</span>(<span class="dv">11</span>, <span class="dv">4</span>, <span class="dv">2</span>, <span class="dv">4</span>, <span class="fu">rep</span>(<span class="fu">c</span>(<span class="dv">5</span>, <span class="dv">1</span>, <span class="dv">1</span>, <span class="dv">1</span>), <span class="dv">31</span>)),</span>
+<span id="cb72-6"><a href="#cb72-6" aria-hidden="true" tabindex="-1"></a>    <span class="at">col_names =</span> <span class="cn">NULL</span>),</span>
+<span id="cb72-7"><a href="#cb72-7" aria-hidden="true" tabindex="-1"></a>  <span class="at">col_types =</span> <span class="fu">cols</span>(<span class="at">.default =</span> <span class="fu">col_character</span>()),</span>
+<span id="cb72-8"><a href="#cb72-8" aria-hidden="true" tabindex="-1"></a>  <span class="at">show_col_types =</span> <span class="cn">FALSE</span>)</span>
+<span id="cb72-9"><a href="#cb72-9" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb72-10"><a href="#cb72-10" aria-hidden="true" tabindex="-1"></a><span class="fu">glimpse</span>(minneapolis)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>Rows: 18,858
+Columns: 128
+$ X1   &lt;chr&gt; "USW00014922", "USW00014922", "USW00014922", "USW00014922", "USW0…
+$ X2   &lt;chr&gt; "1938", "1938", "1938", "1938", "1938", "1938", "1938", "1938", "…
+$ X3   &lt;chr&gt; "04", "04", "04", "04", "04", "05", "05", "05", "05", "05", "06",…
+$ X4   &lt;chr&gt; "TMAX", "TMIN", "PRCP", "SNOW", "SNWD", "TMAX", "TMIN", "PRCP", "…
+$ X5   &lt;chr&gt; "-9999", "-9999", "-9999", "-9999", "-9999", "278", "144", "0", "…
+$ X6   &lt;chr&gt; NA, NA, NA, NA, NA, NA, NA, "T", NA, NA, NA, NA, NA, NA, NA, NA, …
+$ X7   &lt;chr&gt; NA, NA, NA, NA, NA, NA, NA, NA, NA, NA, NA, NA, NA, NA, NA, NA, N…
+$ X8   &lt;chr&gt; NA, NA, NA, NA, NA, "0", "0", "0", "0", "0", "0", "0", "0", "0", …
+$ X9   &lt;chr&gt; "-9999", "-9999", "-9999", "-9999", "-9999", "294", "167", "3", "…
+$ X10  &lt;chr&gt; NA, NA, NA, NA, NA, NA, NA, NA, NA, NA, NA, NA, NA, NA, NA, NA, N…
+$ X11  &lt;chr&gt; NA, NA, NA, NA, NA, NA, NA, NA, NA, NA, NA, NA, NA, NA, NA, NA, N…
+$ X12  &lt;chr&gt; NA, NA, NA, NA, NA, "0", "0", "0", "0", "0", "0", "0", "0", "0", …
+$ X13  &lt;chr&gt; "-9999", "-9999", "-9999", "-9999", "-9999", "278", "144", "18", …
+$ X14  &lt;chr&gt; NA, NA, NA, NA, NA, NA, NA, NA, NA, NA, NA, NA, NA, NA, NA, NA, N…
+$ X15  &lt;chr&gt; NA, NA, NA, NA, NA, NA, NA, NA, NA, NA, NA, NA, NA, NA, NA, NA, N…
+$ X16  &lt;chr&gt; NA, NA, NA, NA, NA, "0", "0", "0", "0", "0", "0", "0", "0", "0", …
+$ X17  &lt;chr&gt; "-9999", "-9999", "-9999", "-9999", "-9999", "194", "111", "221",…
+$ X18  &lt;chr&gt; NA, NA, NA, NA, NA, NA, NA, NA, NA, NA, NA, NA, NA, NA, NA, NA, N…
+$ X19  &lt;chr&gt; NA, NA, NA, NA, NA, NA, NA, NA, NA, NA, NA, NA, NA, NA, NA, NA, N…
+$ X20  &lt;chr&gt; NA, NA, NA, NA, NA, "0", "0", "0", "0", "0", "0", "0", "0", "0", …
+$ X21  &lt;chr&gt; "-9999", "-9999", "-9999", "-9999", "-9999", "128", "22", "246", …
+$ X22  &lt;chr&gt; NA, NA, NA, NA, NA, NA, NA, NA, NA, NA, NA, NA, NA, NA, NA, NA, N…
+$ X23  &lt;chr&gt; NA, NA, NA, NA, NA, NA, NA, NA, NA, NA, NA, NA, NA, NA, NA, NA, N…
+$ X24  &lt;chr&gt; NA, NA, NA, NA, NA, "0", "0", "0", "0", "0", "0", "0", "0", "0", …
+$ X25  &lt;chr&gt; "-9999", "-9999", "-9999", "-9999", "-9999", "72", "22", "3", "0"…
+$ X26  &lt;chr&gt; NA, NA, NA, NA, NA, NA, NA, NA, NA, NA, NA, NA, "T", NA, NA, NA, …
+$ X27  &lt;chr&gt; NA, NA, NA, NA, NA, NA, NA, NA, NA, NA, NA, NA, NA, NA, NA, NA, N…
+$ X28  &lt;chr&gt; NA, NA, NA, NA, NA, "0", "0", "0", "0", "0", "0", "0", "0", "0", …
+$ X29  &lt;chr&gt; "-9999", "-9999", "-9999", "-9999", "-9999", "61", "17", "99", "0…
+$ X30  &lt;chr&gt; NA, NA, NA, NA, NA, NA, NA, NA, "T", NA, NA, NA, NA, NA, NA, NA, …
+$ X31  &lt;chr&gt; NA, NA, NA, NA, NA, NA, NA, NA, NA, NA, NA, NA, NA, NA, NA, NA, N…
+$ X32  &lt;chr&gt; NA, NA, NA, NA, NA, "0", "0", "0", "0", "0", "0", "0", "0", "0", …
+$ X33  &lt;chr&gt; "-9999", "-9999", "-9999", "-9999", "-9999", "56", "17", "307", "…
+$ X34  &lt;chr&gt; NA, NA, NA, NA, NA, NA, NA, NA, NA, NA, NA, NA, NA, NA, NA, NA, N…
+$ X35  &lt;chr&gt; NA, NA, NA, NA, NA, NA, NA, NA, NA, NA, NA, NA, NA, NA, NA, NA, N…
+$ X36  &lt;chr&gt; NA, NA, NA, NA, NA, "0", "0", "0", "0", "0", "0", "0", "0", "0", …
+$ X37  &lt;chr&gt; "106", "-17", "0", "0", "0", "167", "50", "15", "0", "0", "267", …
+$ X38  &lt;chr&gt; NA, NA, NA, NA, NA, NA, NA, NA, NA, NA, NA, NA, NA, NA, NA, NA, N…
+$ X39  &lt;chr&gt; NA, NA, NA, NA, NA, NA, NA, NA, NA, NA, NA, NA, NA, NA, NA, NA, N…
+$ X40  &lt;chr&gt; "0", "0", "0", "0", "0", "0", "0", "0", "0", "0", "0", "0", "0", …
+$ X41  &lt;chr&gt; "189", "11", "0", "0", "0", "178", "61", "5", "0", "0", "206", "1…
+$ X42  &lt;chr&gt; NA, NA, NA, NA, NA, NA, NA, NA, NA, NA, NA, NA, NA, NA, NA, NA, N…
+$ X43  &lt;chr&gt; NA, NA, NA, NA, NA, NA, NA, NA, NA, NA, NA, NA, NA, NA, NA, NA, N…
+$ X44  &lt;chr&gt; "0", "0", "0", "0", "0", "0", "0", "0", "0", "0", "0", "0", "0", …
+$ X45  &lt;chr&gt; "172", "61", "0", "0", "0", "150", "28", "0", "0", "0", "217", "1…
+$ X46  &lt;chr&gt; NA, NA, NA, NA, NA, NA, NA, NA, NA, NA, NA, NA, NA, NA, NA, NA, N…
+$ X47  &lt;chr&gt; NA, NA, NA, NA, NA, NA, NA, NA, NA, NA, NA, NA, NA, NA, NA, NA, N…
+$ X48  &lt;chr&gt; "0", "0", "0", "0", "0", "0", "0", "0", "0", "0", "0", "0", "0", …
+$ X49  &lt;chr&gt; "217", "28", "0", "0", "0", "183", "28", "0", "0", "0", "244", "1…
+$ X50  &lt;chr&gt; NA, NA, NA, NA, NA, NA, NA, NA, NA, NA, NA, NA, NA, NA, NA, NA, N…
+$ X51  &lt;chr&gt; NA, NA, NA, NA, NA, NA, NA, NA, NA, NA, NA, NA, NA, NA, NA, NA, N…
+$ X52  &lt;chr&gt; "0", "0", "0", "0", "0", "0", "0", "0", "0", "0", "0", "0", "0", …
+$ X53  &lt;chr&gt; "256", "78", "0", "0", "0", "156", "72", "56", "0", "0", "244", "…
+$ X54  &lt;chr&gt; NA, NA, NA, NA, NA, NA, NA, NA, NA, NA, NA, NA, NA, NA, NA, NA, N…
+$ X55  &lt;chr&gt; NA, NA, NA, NA, NA, NA, NA, NA, NA, NA, NA, NA, NA, NA, NA, NA, N…
+$ X56  &lt;chr&gt; "0", "0", "0", "0", "0", "0", "0", "0", "0", "0", "0", "0", "0", …
+$ X57  &lt;chr&gt; "194", "78", "267", "0", "0", "178", "72", "10", "0", "0", "311",…
+$ X58  &lt;chr&gt; NA, NA, NA, NA, NA, NA, NA, NA, NA, NA, NA, NA, NA, NA, NA, NA, N…
+$ X59  &lt;chr&gt; NA, NA, NA, NA, NA, NA, NA, NA, NA, NA, NA, NA, NA, NA, NA, NA, N…
+$ X60  &lt;chr&gt; "0", "0", "0", "0", "0", "0", "0", "0", "0", "0", "0", "0", "0", …
+$ X61  &lt;chr&gt; "117", "72", "64", "0", "0", "189", "78", "3", "0", "0", "233", "…
+$ X62  &lt;chr&gt; NA, NA, NA, NA, NA, NA, NA, NA, NA, NA, NA, NA, NA, NA, NA, NA, N…
+$ X63  &lt;chr&gt; NA, NA, NA, NA, NA, NA, NA, NA, NA, NA, NA, NA, NA, NA, NA, NA, N…
+$ X64  &lt;chr&gt; "0", "0", "0", "0", "0", "0", "0", "0", "0", "0", "0", "0", "0", …
+$ X65  &lt;chr&gt; "133", "106", "193", "0", "0", "217", "61", "3", "0", "0", "178",…
+$ X66  &lt;chr&gt; NA, NA, NA, NA, NA, NA, NA, NA, NA, NA, NA, NA, "T", NA, NA, NA, …
+$ X67  &lt;chr&gt; NA, NA, NA, NA, NA, NA, NA, NA, NA, NA, NA, NA, NA, NA, NA, NA, N…
+$ X68  &lt;chr&gt; "0", "0", "0", "0", "0", "0", "0", "0", "0", "0", "0", "0", "0", …
+$ X69  &lt;chr&gt; "228", "106", "58", "0", "0", "133", "111", "297", "0", "0", "261…
+$ X70  &lt;chr&gt; NA, NA, NA, NA, NA, NA, NA, NA, NA, NA, NA, NA, NA, NA, NA, NA, N…
+$ X71  &lt;chr&gt; NA, NA, NA, NA, NA, NA, NA, NA, NA, NA, NA, NA, NA, NA, NA, NA, N…
+$ X72  &lt;chr&gt; "0", "0", "0", "0", "0", "0", "0", "0", "0", "0", "0", "0", "0", …
+$ X73  &lt;chr&gt; "217", "72", "0", "0", "0", "139", "100", "254", "0", "0", "283",…
+$ X74  &lt;chr&gt; NA, NA, NA, NA, NA, NA, NA, NA, NA, NA, NA, NA, NA, NA, NA, NA, N…
+$ X75  &lt;chr&gt; NA, NA, NA, NA, NA, NA, NA, NA, NA, NA, NA, NA, NA, NA, NA, NA, N…
+$ X76  &lt;chr&gt; "0", "0", "0", "0", "0", "0", "0", "0", "0", "0", "0", "0", "0", …
+$ X77  &lt;chr&gt; "172", "11", "0", "0", "0", "117", "89", "79", "0", "0", "294", "…
+$ X78  &lt;chr&gt; NA, NA, "T", NA, NA, NA, NA, NA, NA, NA, NA, NA, NA, NA, NA, NA, …
+$ X79  &lt;chr&gt; NA, NA, NA, NA, NA, NA, NA, NA, NA, NA, NA, NA, NA, NA, NA, NA, N…
+$ X80  &lt;chr&gt; "0", "0", "0", "0", "0", "0", "0", "0", "0", "0", "0", "0", "0", …
+$ X81  &lt;chr&gt; "144", "-6", "3", "0", "0", "172", "78", "0", "0", "0", "300", "1…
+$ X82  &lt;chr&gt; NA, NA, NA, NA, NA, NA, NA, "T", NA, NA, NA, NA, NA, NA, NA, NA, …
+$ X83  &lt;chr&gt; NA, NA, NA, NA, NA, NA, NA, NA, NA, NA, NA, NA, NA, NA, NA, NA, N…
+$ X84  &lt;chr&gt; "0", "0", "0", "0", "0", "0", "0", "0", "0", "0", "0", "0", "0", …
+$ X85  &lt;chr&gt; "89", "17", "25", "0", "0", "206", "100", "0", "0", "0", "328", "…
+$ X86  &lt;chr&gt; NA, NA, NA, NA, NA, NA, NA, NA, NA, NA, NA, NA, NA, NA, NA, NA, N…
+$ X87  &lt;chr&gt; NA, NA, NA, NA, NA, NA, NA, NA, NA, NA, NA, NA, NA, NA, NA, NA, N…
+$ X88  &lt;chr&gt; "0", "0", "0", "0", "0", "0", "0", "0", "0", "0", "0", "0", "0", …
+$ X89  &lt;chr&gt; "144", "-6", "0", "0", "0", "222", "89", "0", "0", "0", "344", "2…
+$ X90  &lt;chr&gt; NA, NA, NA, NA, NA, NA, NA, "T", NA, NA, NA, NA, NA, NA, NA, NA, …
+$ X91  &lt;chr&gt; NA, NA, NA, NA, NA, NA, NA, NA, NA, NA, NA, NA, NA, NA, NA, NA, N…
+$ X92  &lt;chr&gt; "0", "0", "0", "0", "0", "0", "0", "0", "0", "0", "0", "0", "0", …
+$ X93  &lt;chr&gt; "94", "39", "119", "0", "0", "150", "83", "0", "0", "0", "328", "…
+$ X94  &lt;chr&gt; NA, NA, NA, NA, NA, NA, NA, NA, NA, NA, NA, NA, NA, NA, NA, NA, N…
+$ X95  &lt;chr&gt; NA, NA, NA, NA, NA, NA, NA, NA, NA, NA, NA, NA, NA, NA, NA, NA, N…
+$ X96  &lt;chr&gt; "0", "0", "0", "0", "0", "0", "0", "0", "0", "0", "0", "0", "0", …
+$ X97  &lt;chr&gt; "111", "56", "10", "0", "0", "144", "44", "3", "0", "0", "294", "…
+$ X98  &lt;chr&gt; NA, NA, NA, NA, NA, NA, NA, NA, NA, NA, NA, NA, NA, NA, NA, NA, N…
+$ X99  &lt;chr&gt; NA, NA, NA, NA, NA, NA, NA, NA, NA, NA, NA, NA, NA, NA, NA, NA, N…
+$ X100 &lt;chr&gt; "0", "0", "0", "0", "0", "0", "0", "0", "0", "0", "0", "0", "0", …
+$ X101 &lt;chr&gt; "156", "44", "0", "0", "0", "194", "83", "0", "0", "0", "233", "1…
+$ X102 &lt;chr&gt; NA, NA, "T", NA, NA, NA, NA, NA, NA, NA, NA, NA, NA, NA, NA, NA, …
+$ X103 &lt;chr&gt; NA, NA, NA, NA, NA, NA, NA, NA, NA, NA, NA, NA, NA, NA, NA, NA, N…
+$ X104 &lt;chr&gt; "0", "0", "0", "0", "0", "0", "0", "0", "0", "0", "0", "0", "0", …
+$ X105 &lt;chr&gt; "267", "117", "0", "0", "0", "239", "117", "33", "0", "0", "244",…
+$ X106 &lt;chr&gt; NA, NA, NA, NA, NA, NA, NA, NA, NA, NA, NA, NA, NA, NA, NA, NA, N…
+$ X107 &lt;chr&gt; NA, NA, NA, NA, NA, NA, NA, NA, NA, NA, NA, NA, NA, NA, NA, NA, N…
+$ X108 &lt;chr&gt; "0", "0", "0", "0", "0", "0", "0", "0", "0", "0", "0", "0", "0", …
+$ X109 &lt;chr&gt; "256", "156", "36", "0", "0", "189", "133", "76", "0", "0", "256"…
+$ X110 &lt;chr&gt; NA, NA, NA, NA, NA, NA, NA, NA, NA, NA, NA, NA, NA, NA, NA, NA, N…
+$ X111 &lt;chr&gt; NA, NA, NA, NA, NA, NA, NA, NA, NA, NA, NA, NA, NA, NA, NA, NA, N…
+$ X112 &lt;chr&gt; "0", "0", "0", "0", "0", "0", "0", "0", "0", "0", "0", "0", "0", …
+$ X113 &lt;chr&gt; "156", "39", "56", "0", "0", "244", "150", "0", "0", "0", "244", …
+$ X114 &lt;chr&gt; NA, NA, NA, NA, NA, NA, NA, "T", NA, NA, NA, NA, NA, NA, NA, NA, …
+$ X115 &lt;chr&gt; NA, NA, NA, NA, NA, NA, NA, NA, NA, NA, NA, NA, NA, NA, NA, NA, N…
+$ X116 &lt;chr&gt; "0", "0", "0", "0", "0", "0", "0", "0", "0", "0", "0", "0", "0", …
+$ X117 &lt;chr&gt; "144", "17", "0", "0", "0", "278", "144", "0", "0", "0", "200", "…
+$ X118 &lt;chr&gt; NA, NA, NA, NA, NA, NA, NA, "T", NA, NA, NA, NA, "T", NA, NA, NA,…
+$ X119 &lt;chr&gt; NA, NA, NA, NA, NA, NA, NA, NA, NA, NA, NA, NA, NA, NA, NA, NA, N…
+$ X120 &lt;chr&gt; "0", "0", "0", "0", "0", "0", "0", "0", "0", "0", "0", "0", "0", …
+$ X121 &lt;chr&gt; "222", "44", "0", "0", "0", "294", "172", "0", "0", "0", "283", "…
+$ X122 &lt;chr&gt; NA, NA, NA, NA, NA, NA, NA, NA, NA, NA, NA, NA, NA, NA, NA, NA, N…
+$ X123 &lt;chr&gt; NA, NA, NA, NA, NA, NA, NA, NA, NA, NA, NA, NA, NA, NA, NA, NA, N…
+$ X124 &lt;chr&gt; "0", "0", "0", "0", "0", "0", "0", "0", "0", "0", "0", "0", "0", …
+$ X125 &lt;chr&gt; "-9999", "-9999", "-9999", "-9999", "-9999", "244", "178", "41", …
+$ X126 &lt;chr&gt; NA, NA, NA, NA, NA, NA, NA, NA, NA, NA, NA, NA, NA, NA, NA, NA, N…
+$ X127 &lt;chr&gt; NA, NA, NA, NA, NA, NA, NA, NA, NA, NA, NA, NA, NA, NA, NA, NA, N…
+$ X128 &lt;chr&gt; NA, NA, NA, NA, NA, "0", "0", "0", "0", "0", NA, NA, NA, NA, NA, …</code></pre>
+</div>
+</div>
+<div class="cell">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb74"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb74-1"><a href="#cb74-1" aria-hidden="true" tabindex="-1"></a><span class="co">#Keep Minneapolis snowfall records from 1995-2025</span></span>
+<span id="cb74-2"><a href="#cb74-2" aria-hidden="true" tabindex="-1"></a>minneapolis <span class="ot">&lt;-</span> minneapolis <span class="sc">|&gt;</span></span>
+<span id="cb74-3"><a href="#cb74-3" aria-hidden="true" tabindex="-1"></a>  <span class="fu">rename</span>(</span>
+<span id="cb74-4"><a href="#cb74-4" aria-hidden="true" tabindex="-1"></a>    <span class="at">station_id =</span> X1,</span>
+<span id="cb74-5"><a href="#cb74-5" aria-hidden="true" tabindex="-1"></a>    <span class="at">year =</span> X2,</span>
+<span id="cb74-6"><a href="#cb74-6" aria-hidden="true" tabindex="-1"></a>    <span class="at">month =</span> X3,</span>
+<span id="cb74-7"><a href="#cb74-7" aria-hidden="true" tabindex="-1"></a>    <span class="at">measurement =</span> X4) <span class="sc">|&gt;</span></span>
+<span id="cb74-8"><a href="#cb74-8" aria-hidden="true" tabindex="-1"></a>  <span class="fu">mutate</span>(</span>
+<span id="cb74-9"><a href="#cb74-9" aria-hidden="true" tabindex="-1"></a>    <span class="at">year =</span> <span class="fu">as.numeric</span>(year)) <span class="sc">|&gt;</span></span>
+<span id="cb74-10"><a href="#cb74-10" aria-hidden="true" tabindex="-1"></a>  <span class="fu">filter</span>(</span>
+<span id="cb74-11"><a href="#cb74-11" aria-hidden="true" tabindex="-1"></a>    measurement <span class="sc">==</span> <span class="st">"SNOW"</span>,</span>
+<span id="cb74-12"><a href="#cb74-12" aria-hidden="true" tabindex="-1"></a>    year <span class="sc">&gt;=</span> <span class="dv">1995</span>,</span>
+<span id="cb74-13"><a href="#cb74-13" aria-hidden="true" tabindex="-1"></a>    year <span class="sc">&lt;=</span> <span class="dv">2025</span>)</span>
+<span id="cb74-14"><a href="#cb74-14" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb74-15"><a href="#cb74-15" aria-hidden="true" tabindex="-1"></a><span class="co">#View snowfall records</span></span>
+<span id="cb74-16"><a href="#cb74-16" aria-hidden="true" tabindex="-1"></a>minneapolis <span class="sc">|&gt;</span></span>
+<span id="cb74-17"><a href="#cb74-17" aria-hidden="true" tabindex="-1"></a>  <span class="fu">select</span>(station_id, year, month, measurement) <span class="sc">|&gt;</span></span>
+<span id="cb74-18"><a href="#cb74-18" aria-hidden="true" tabindex="-1"></a>  <span class="fu">head</span>(<span class="dv">10</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="cell-output cell-output-stdout">
+<pre><code># A tibble: 10 × 4
+   station_id   year month measurement
+   &lt;chr&gt;       &lt;dbl&gt; &lt;chr&gt; &lt;chr&gt;      
+ 1 USW00014922  1995 01    SNOW       
+ 2 USW00014922  1995 02    SNOW       
+ 3 USW00014922  1995 03    SNOW       
+ 4 USW00014922  1995 04    SNOW       
+ 5 USW00014922  1995 05    SNOW       
+ 6 USW00014922  1995 06    SNOW       
+ 7 USW00014922  1995 07    SNOW       
+ 8 USW00014922  1995 08    SNOW       
+ 9 USW00014922  1995 09    SNOW       
+10 USW00014922  1995 10    SNOW       </code></pre>
+</div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb76"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb76-1"><a href="#cb76-1" aria-hidden="true" tabindex="-1"></a><span class="fu">nrow</span>(minneapolis)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>[1] 328</code></pre>
+</div>
+</div>
+<div class="cell">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb78"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb78-1"><a href="#cb78-1" aria-hidden="true" tabindex="-1"></a><span class="co">#Select the daily snowfall columns</span></span>
+<span id="cb78-2"><a href="#cb78-2" aria-hidden="true" tabindex="-1"></a>minneapolis_daily <span class="ot">&lt;-</span> minneapolis <span class="sc">|&gt;</span></span>
+<span id="cb78-3"><a href="#cb78-3" aria-hidden="true" tabindex="-1"></a>  <span class="fu">select</span>(</span>
+<span id="cb78-4"><a href="#cb78-4" aria-hidden="true" tabindex="-1"></a>    station_id, year, month,</span>
+<span id="cb78-5"><a href="#cb78-5" aria-hidden="true" tabindex="-1"></a>    <span class="fu">all_of</span>(<span class="fu">paste0</span>(<span class="st">"X"</span>, <span class="dv">5</span> <span class="sc">+</span> <span class="dv">4</span> <span class="sc">*</span> (<span class="dv">0</span><span class="sc">:</span><span class="dv">30</span>)))) <span class="sc">|&gt;</span></span>
+<span id="cb78-6"><a href="#cb78-6" aria-hidden="true" tabindex="-1"></a>  <span class="fu">rename_with</span>(</span>
+<span id="cb78-7"><a href="#cb78-7" aria-hidden="true" tabindex="-1"></a>    <span class="sc">~</span> <span class="fu">paste0</span>(<span class="st">"day_"</span>, <span class="dv">1</span><span class="sc">:</span><span class="dv">31</span>),</span>
+<span id="cb78-8"><a href="#cb78-8" aria-hidden="true" tabindex="-1"></a>    <span class="fu">starts_with</span>(<span class="st">"X"</span>))</span>
+<span id="cb78-9"><a href="#cb78-9" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb78-10"><a href="#cb78-10" aria-hidden="true" tabindex="-1"></a><span class="co">#Turn daily columns into rows</span></span>
+<span id="cb78-11"><a href="#cb78-11" aria-hidden="true" tabindex="-1"></a>minneapolis_daily <span class="ot">&lt;-</span> minneapolis_daily <span class="sc">|&gt;</span></span>
+<span id="cb78-12"><a href="#cb78-12" aria-hidden="true" tabindex="-1"></a>  <span class="fu">pivot_longer</span>(</span>
+<span id="cb78-13"><a href="#cb78-13" aria-hidden="true" tabindex="-1"></a>    <span class="at">cols =</span> <span class="fu">starts_with</span>(<span class="st">"day_"</span>),</span>
+<span id="cb78-14"><a href="#cb78-14" aria-hidden="true" tabindex="-1"></a>    <span class="at">names_to =</span> <span class="st">"day"</span>,</span>
+<span id="cb78-15"><a href="#cb78-15" aria-hidden="true" tabindex="-1"></a>    <span class="at">values_to =</span> <span class="st">"snowfall_mm"</span>) <span class="sc">|&gt;</span></span>
+<span id="cb78-16"><a href="#cb78-16" aria-hidden="true" tabindex="-1"></a>  <span class="fu">mutate</span>(</span>
+<span id="cb78-17"><a href="#cb78-17" aria-hidden="true" tabindex="-1"></a>    <span class="at">day =</span> <span class="fu">as.numeric</span>(<span class="fu">str_remove</span>(day, <span class="st">"day_"</span>)),</span>
+<span id="cb78-18"><a href="#cb78-18" aria-hidden="true" tabindex="-1"></a>    <span class="at">snowfall_mm =</span> <span class="fu">as.numeric</span>(snowfall_mm),</span>
+<span id="cb78-19"><a href="#cb78-19" aria-hidden="true" tabindex="-1"></a>    <span class="at">snowfall_mm =</span> <span class="fu">na_if</span>(snowfall_mm, <span class="sc">-</span><span class="dv">9999</span>),</span>
+<span id="cb78-20"><a href="#cb78-20" aria-hidden="true" tabindex="-1"></a>    <span class="at">date =</span> <span class="fu">as.Date</span>(<span class="fu">paste</span>(year, month, day, <span class="at">sep =</span> <span class="st">"-"</span>)),</span>
+<span id="cb78-21"><a href="#cb78-21" aria-hidden="true" tabindex="-1"></a>    <span class="at">snowfall_inches =</span> snowfall_mm <span class="sc">/</span> <span class="fl">25.4</span>) <span class="sc">|&gt;</span></span>
+<span id="cb78-22"><a href="#cb78-22" aria-hidden="true" tabindex="-1"></a>  <span class="fu">filter</span>(<span class="sc">!</span><span class="fu">is.na</span>(date)) <span class="sc">|&gt;</span></span>
+<span id="cb78-23"><a href="#cb78-23" aria-hidden="true" tabindex="-1"></a>  <span class="fu">select</span>(station_id, date, snowfall_inches)</span>
+<span id="cb78-24"><a href="#cb78-24" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb78-25"><a href="#cb78-25" aria-hidden="true" tabindex="-1"></a><span class="fu">head</span>(minneapolis_daily, <span class="dv">10</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="cell-output cell-output-stdout">
+<pre><code># A tibble: 10 × 3
+   station_id  date       snowfall_inches
+   &lt;chr&gt;       &lt;date&gt;               &lt;dbl&gt;
+ 1 USW00014922 1995-01-01           0.315
+ 2 USW00014922 1995-01-02           0.315
+ 3 USW00014922 1995-01-03           0    
+ 4 USW00014922 1995-01-04           0    
+ 5 USW00014922 1995-01-05           0    
+ 6 USW00014922 1995-01-06           0.118
+ 7 USW00014922 1995-01-07           0    
+ 8 USW00014922 1995-01-08           0    
+ 9 USW00014922 1995-01-09           1.61 
+10 USW00014922 1995-01-10           0    </code></pre>
+</div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb80"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb80-1"><a href="#cb80-1" aria-hidden="true" tabindex="-1"></a><span class="fu">nrow</span>(minneapolis_daily)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>[1] 9985</code></pre>
+</div>
+</div>
+<div class="cell">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb82"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb82-1"><a href="#cb82-1" aria-hidden="true" tabindex="-1"></a><span class="co">#Check for duplicates</span></span>
+<span id="cb82-2"><a href="#cb82-2" aria-hidden="true" tabindex="-1"></a>minneapolis_daily <span class="sc">|&gt;</span></span>
+<span id="cb82-3"><a href="#cb82-3" aria-hidden="true" tabindex="-1"></a>  <span class="fu">count</span>(station_id, date) <span class="sc">|&gt;</span></span>
+<span id="cb82-4"><a href="#cb82-4" aria-hidden="true" tabindex="-1"></a>  <span class="fu">filter</span>(n <span class="sc">&gt;</span> <span class="dv">1</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="cell-output cell-output-stdout">
+<pre><code># A tibble: 0 × 3
+# ℹ 3 variables: station_id &lt;chr&gt;, date &lt;date&gt;, n &lt;int&gt;</code></pre>
+</div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb84"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb84-1"><a href="#cb84-1" aria-hidden="true" tabindex="-1"></a><span class="co">#Check missing snowfall values</span></span>
+<span id="cb84-2"><a href="#cb84-2" aria-hidden="true" tabindex="-1"></a>minneapolis_daily <span class="sc">|&gt;</span></span>
+<span id="cb84-3"><a href="#cb84-3" aria-hidden="true" tabindex="-1"></a>  <span class="fu">summarise</span>(</span>
+<span id="cb84-4"><a href="#cb84-4" aria-hidden="true" tabindex="-1"></a>    <span class="at">total_days =</span> <span class="fu">n</span>(),</span>
+<span id="cb84-5"><a href="#cb84-5" aria-hidden="true" tabindex="-1"></a>    <span class="at">missing_snowfall =</span> <span class="fu">sum</span>(<span class="fu">is.na</span>(snowfall_inches)),</span>
+<span id="cb84-6"><a href="#cb84-6" aria-hidden="true" tabindex="-1"></a>    <span class="at">missing_percent =</span> <span class="fu">mean</span>(<span class="fu">is.na</span>(snowfall_inches)) <span class="sc">*</span> <span class="dv">100</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="cell-output cell-output-stdout">
+<pre><code># A tibble: 1 × 3
+  total_days missing_snowfall missing_percent
+       &lt;int&gt;            &lt;int&gt;           &lt;dbl&gt;
+1       9985                0               0</code></pre>
+</div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb86"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb86-1"><a href="#cb86-1" aria-hidden="true" tabindex="-1"></a><span class="co">#Check for negative snowfall values</span></span>
+<span id="cb86-2"><a href="#cb86-2" aria-hidden="true" tabindex="-1"></a>minneapolis_daily <span class="sc">|&gt;</span></span>
+<span id="cb86-3"><a href="#cb86-3" aria-hidden="true" tabindex="-1"></a>  <span class="fu">filter</span>(snowfall_inches <span class="sc">&lt;</span> <span class="dv">0</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="cell-output cell-output-stdout">
+<pre><code># A tibble: 0 × 3
+# ℹ 3 variables: station_id &lt;chr&gt;, date &lt;date&gt;, snowfall_inches &lt;dbl&gt;</code></pre>
+</div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb88"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb88-1"><a href="#cb88-1" aria-hidden="true" tabindex="-1"></a><span class="co">#Check date range</span></span>
+<span id="cb88-2"><a href="#cb88-2" aria-hidden="true" tabindex="-1"></a>minneapolis_daily <span class="sc">|&gt;</span></span>
+<span id="cb88-3"><a href="#cb88-3" aria-hidden="true" tabindex="-1"></a>  <span class="fu">summarise</span>(</span>
+<span id="cb88-4"><a href="#cb88-4" aria-hidden="true" tabindex="-1"></a>    <span class="at">first_date =</span> <span class="fu">min</span>(date),</span>
+<span id="cb88-5"><a href="#cb88-5" aria-hidden="true" tabindex="-1"></a>    <span class="at">last_date =</span> <span class="fu">max</span>(date))</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="cell-output cell-output-stdout">
+<pre><code># A tibble: 1 × 2
+  first_date last_date 
+  &lt;date&gt;     &lt;date&gt;    
+1 1995-01-01 2025-12-31</code></pre>
+</div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb90"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb90-1"><a href="#cb90-1" aria-hidden="true" tabindex="-1"></a><span class="co">#Check parsing problems</span></span>
+<span id="cb90-2"><a href="#cb90-2" aria-hidden="true" tabindex="-1"></a><span class="fu">nrow</span>(<span class="fu">problems</span>(minneapolis))</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>[1] 0</code></pre>
+</div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb92"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb92-1"><a href="#cb92-1" aria-hidden="true" tabindex="-1"></a><span class="co">#Check NOAA quality flags</span></span>
+<span id="cb92-2"><a href="#cb92-2" aria-hidden="true" tabindex="-1"></a>minneapolis <span class="sc">|&gt;</span></span>
+<span id="cb92-3"><a href="#cb92-3" aria-hidden="true" tabindex="-1"></a>  <span class="fu">select</span>(<span class="fu">all_of</span>(<span class="fu">paste0</span>(<span class="st">"X"</span>, <span class="dv">7</span> <span class="sc">+</span> <span class="dv">4</span> <span class="sc">*</span> (<span class="dv">0</span><span class="sc">:</span><span class="dv">30</span>)))) <span class="sc">|&gt;</span></span>
+<span id="cb92-4"><a href="#cb92-4" aria-hidden="true" tabindex="-1"></a>  <span class="fu">pivot_longer</span>(</span>
+<span id="cb92-5"><a href="#cb92-5" aria-hidden="true" tabindex="-1"></a>    <span class="at">cols =</span> <span class="fu">everything</span>(),</span>
+<span id="cb92-6"><a href="#cb92-6" aria-hidden="true" tabindex="-1"></a>    <span class="at">names_to =</span> <span class="st">"day"</span>,</span>
+<span id="cb92-7"><a href="#cb92-7" aria-hidden="true" tabindex="-1"></a>    <span class="at">values_to =</span> <span class="st">"quality_flag"</span>) <span class="sc">|&gt;</span></span>
+<span id="cb92-8"><a href="#cb92-8" aria-hidden="true" tabindex="-1"></a>  <span class="fu">count</span>(quality_flag)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="cell-output cell-output-stdout">
+<pre><code># A tibble: 1 × 2
+  quality_flag     n
+  &lt;chr&gt;        &lt;int&gt;
+1 &lt;NA&gt;         10168</code></pre>
+</div>
+</div>
+</section>
+<section id="combining-the-cities" class="level2">
+<h2 class="anchored" data-anchor-id="combining-the-cities">Combining the cities</h2>
+<p>After cleaning each city’s snowfall records separately, we combined all four datasets using bind_rows(). Since each dataset contained the same variables, we were able to combine them into one table. We then added city names to make the observations easier to identify. Our combined dataset contains 43,711 daily records across the four cities. We also checked for duplicate city-date combinations and compared missing snowfall observations between locations.</p>
+<div class="cell">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb94"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb94-1"><a href="#cb94-1" aria-hidden="true" tabindex="-1"></a><span class="co">#Combine the four snowfall datasets</span></span>
+<span id="cb94-2"><a href="#cb94-2" aria-hidden="true" tabindex="-1"></a>snowfall_daily <span class="ot">&lt;-</span> <span class="fu">bind_rows</span>(</span>
+<span id="cb94-3"><a href="#cb94-3" aria-hidden="true" tabindex="-1"></a>  lexington_daily,</span>
+<span id="cb94-4"><a href="#cb94-4" aria-hidden="true" tabindex="-1"></a>  louisville_daily,</span>
+<span id="cb94-5"><a href="#cb94-5" aria-hidden="true" tabindex="-1"></a>  buffalo_daily,</span>
+<span id="cb94-6"><a href="#cb94-6" aria-hidden="true" tabindex="-1"></a>  minneapolis_daily)</span>
+<span id="cb94-7"><a href="#cb94-7" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb94-8"><a href="#cb94-8" aria-hidden="true" tabindex="-1"></a><span class="fu">glimpse</span>(snowfall_daily)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>Rows: 43,711
+Columns: 3
+$ station_id      &lt;chr&gt; "USW00093820", "USW00093820", "USW00093820", "USW00093…
+$ date            &lt;date&gt; 1995-01-01, 1995-01-02, 1995-01-03, 1995-01-04, 1995-…
+$ snowfall_inches &lt;dbl&gt; 0.3149606, 0.0000000, 0.0000000, 0.0000000, 0.0000000,…</code></pre>
+</div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb96"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb96-1"><a href="#cb96-1" aria-hidden="true" tabindex="-1"></a><span class="fu">nrow</span>(snowfall_daily)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>[1] 43711</code></pre>
+</div>
+</div>
+<div class="cell">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb98"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb98-1"><a href="#cb98-1" aria-hidden="true" tabindex="-1"></a><span class="co">#Add city names to our dataset</span></span>
+<span id="cb98-2"><a href="#cb98-2" aria-hidden="true" tabindex="-1"></a>snowfall_daily <span class="ot">&lt;-</span> snowfall_daily <span class="sc">|&gt;</span></span>
+<span id="cb98-3"><a href="#cb98-3" aria-hidden="true" tabindex="-1"></a>  <span class="fu">mutate</span>(</span>
+<span id="cb98-4"><a href="#cb98-4" aria-hidden="true" tabindex="-1"></a>    <span class="at">city =</span> <span class="fu">case_when</span>(</span>
+<span id="cb98-5"><a href="#cb98-5" aria-hidden="true" tabindex="-1"></a>      station_id <span class="sc">==</span> <span class="st">"USW00093820"</span> <span class="sc">~</span> <span class="st">"Lexington"</span>,</span>
+<span id="cb98-6"><a href="#cb98-6" aria-hidden="true" tabindex="-1"></a>      station_id <span class="sc">==</span> <span class="st">"USW00093821"</span> <span class="sc">~</span> <span class="st">"Louisville"</span>,</span>
+<span id="cb98-7"><a href="#cb98-7" aria-hidden="true" tabindex="-1"></a>      station_id <span class="sc">==</span> <span class="st">"USW00014733"</span> <span class="sc">~</span> <span class="st">"Buffalo"</span>,</span>
+<span id="cb98-8"><a href="#cb98-8" aria-hidden="true" tabindex="-1"></a>      station_id <span class="sc">==</span> <span class="st">"USW00014922"</span> <span class="sc">~</span> <span class="st">"Minneapolis"</span>)) <span class="sc">|&gt;</span></span>
+<span id="cb98-9"><a href="#cb98-9" aria-hidden="true" tabindex="-1"></a>  <span class="fu">select</span>(city, date, snowfall_inches)</span>
+<span id="cb98-10"><a href="#cb98-10" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb98-11"><a href="#cb98-11" aria-hidden="true" tabindex="-1"></a>snowfall_daily <span class="sc">|&gt;</span></span>
+<span id="cb98-12"><a href="#cb98-12" aria-hidden="true" tabindex="-1"></a>  <span class="fu">count</span>(city)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="cell-output cell-output-stdout">
+<pre><code># A tibble: 4 × 2
+  city            n
+  &lt;chr&gt;       &lt;int&gt;
+1 Buffalo     11323
+2 Lexington   11323
+3 Louisville  11080
+4 Minneapolis  9985</code></pre>
+</div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb100"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb100-1"><a href="#cb100-1" aria-hidden="true" tabindex="-1"></a><span class="fu">head</span>(snowfall_daily, <span class="dv">10</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="cell-output cell-output-stdout">
+<pre><code># A tibble: 10 × 3
+   city      date       snowfall_inches
+   &lt;chr&gt;     &lt;date&gt;               &lt;dbl&gt;
+ 1 Lexington 1995-01-01           0.315
+ 2 Lexington 1995-01-02           0    
+ 3 Lexington 1995-01-03           0    
+ 4 Lexington 1995-01-04           0    
+ 5 Lexington 1995-01-05           0    
+ 6 Lexington 1995-01-06           0.118
+ 7 Lexington 1995-01-07           0    
+ 8 Lexington 1995-01-08           0    
+ 9 Lexington 1995-01-09           0    
+10 Lexington 1995-01-10           0    </code></pre>
+</div>
+</div>
+<div class="cell">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb102"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb102-1"><a href="#cb102-1" aria-hidden="true" tabindex="-1"></a><span class="co">#Check for duplicates</span></span>
+<span id="cb102-2"><a href="#cb102-2" aria-hidden="true" tabindex="-1"></a>snowfall_daily <span class="sc">|&gt;</span></span>
+<span id="cb102-3"><a href="#cb102-3" aria-hidden="true" tabindex="-1"></a>  <span class="fu">count</span>(city, date) <span class="sc">|&gt;</span></span>
+<span id="cb102-4"><a href="#cb102-4" aria-hidden="true" tabindex="-1"></a>  <span class="fu">filter</span>(n <span class="sc">&gt;</span> <span class="dv">1</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="cell-output cell-output-stdout">
+<pre><code># A tibble: 0 × 3
+# ℹ 3 variables: city &lt;chr&gt;, date &lt;date&gt;, n &lt;int&gt;</code></pre>
+</div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb104"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb104-1"><a href="#cb104-1" aria-hidden="true" tabindex="-1"></a><span class="co">#Check missing snowfall observations by city</span></span>
+<span id="cb104-2"><a href="#cb104-2" aria-hidden="true" tabindex="-1"></a>snowfall_daily <span class="sc">|&gt;</span></span>
+<span id="cb104-3"><a href="#cb104-3" aria-hidden="true" tabindex="-1"></a>  <span class="fu">group_by</span>(city) <span class="sc">|&gt;</span></span>
+<span id="cb104-4"><a href="#cb104-4" aria-hidden="true" tabindex="-1"></a>  <span class="fu">summarise</span>(</span>
+<span id="cb104-5"><a href="#cb104-5" aria-hidden="true" tabindex="-1"></a>    <span class="at">total_days =</span> <span class="fu">n</span>(),</span>
+<span id="cb104-6"><a href="#cb104-6" aria-hidden="true" tabindex="-1"></a>    <span class="at">missing_days =</span> <span class="fu">sum</span>(<span class="fu">is.na</span>(snowfall_inches)))</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="cell-output cell-output-stdout">
+<pre><code># A tibble: 4 × 3
+  city        total_days missing_days
+  &lt;chr&gt;            &lt;int&gt;        &lt;int&gt;
+1 Buffalo          11323           13
+2 Lexington        11323            0
+3 Louisville       11080           48
+4 Minneapolis       9985            0</code></pre>
+</div>
+</div>
+</section>
+<section id="snowfall-by-winter" class="level2">
+<h2 class="anchored" data-anchor-id="snowfall-by-winter">Snowfall by winter</h2>
+<p>To begin answering our research question, we organized the daily observations into winter seasons rather than calendar years. We defined each winter as November through March, with December grouped with January through March of the following year. Using group_by() and summarize(), we calculated total recorded snowfall, the number of days with measurable snowfall, and the number of missing observations for each city and winter. This allows us to begin comparing how much snowfall varies between years and locations.</p>
+<div class="cell">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb106"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb106-1"><a href="#cb106-1" aria-hidden="true" tabindex="-1"></a><span class="co">#Calculate snowfall totals by winter season</span></span>
+<span id="cb106-2"><a href="#cb106-2" aria-hidden="true" tabindex="-1"></a>snowfall_seasons <span class="ot">&lt;-</span> snowfall_daily <span class="sc">|&gt;</span></span>
+<span id="cb106-3"><a href="#cb106-3" aria-hidden="true" tabindex="-1"></a>  <span class="fu">mutate</span>(</span>
+<span id="cb106-4"><a href="#cb106-4" aria-hidden="true" tabindex="-1"></a>    <span class="at">year =</span> lubridate<span class="sc">::</span><span class="fu">year</span>(date),</span>
+<span id="cb106-5"><a href="#cb106-5" aria-hidden="true" tabindex="-1"></a>    <span class="at">month =</span> lubridate<span class="sc">::</span><span class="fu">month</span>(date),</span>
+<span id="cb106-6"><a href="#cb106-6" aria-hidden="true" tabindex="-1"></a>    <span class="at">winter_year =</span> <span class="fu">if_else</span>(month <span class="sc">&gt;=</span> <span class="dv">11</span>, year <span class="sc">+</span> <span class="dv">1</span>, year)) <span class="sc">|&gt;</span></span>
+<span id="cb106-7"><a href="#cb106-7" aria-hidden="true" tabindex="-1"></a>  <span class="fu">filter</span>(</span>
+<span id="cb106-8"><a href="#cb106-8" aria-hidden="true" tabindex="-1"></a>    month <span class="sc">%in%</span> <span class="fu">c</span>(<span class="dv">11</span>, <span class="dv">12</span>, <span class="dv">1</span>, <span class="dv">2</span>, <span class="dv">3</span>),</span>
+<span id="cb106-9"><a href="#cb106-9" aria-hidden="true" tabindex="-1"></a>    winter_year <span class="sc">&gt;=</span> <span class="dv">1996</span>,</span>
+<span id="cb106-10"><a href="#cb106-10" aria-hidden="true" tabindex="-1"></a>    winter_year <span class="sc">&lt;=</span> <span class="dv">2025</span>) <span class="sc">|&gt;</span></span>
+<span id="cb106-11"><a href="#cb106-11" aria-hidden="true" tabindex="-1"></a>  <span class="fu">group_by</span>(city, winter_year) <span class="sc">|&gt;</span></span>
+<span id="cb106-12"><a href="#cb106-12" aria-hidden="true" tabindex="-1"></a>  <span class="fu">summarise</span>(</span>
+<span id="cb106-13"><a href="#cb106-13" aria-hidden="true" tabindex="-1"></a>    <span class="at">total_snowfall =</span> <span class="fu">sum</span>(snowfall_inches, <span class="at">na.rm =</span> <span class="cn">TRUE</span>),</span>
+<span id="cb106-14"><a href="#cb106-14" aria-hidden="true" tabindex="-1"></a>    <span class="at">snowfall_days =</span> <span class="fu">sum</span>(snowfall_inches <span class="sc">&gt;</span> <span class="dv">0</span>, <span class="at">na.rm =</span> <span class="cn">TRUE</span>),</span>
+<span id="cb106-15"><a href="#cb106-15" aria-hidden="true" tabindex="-1"></a>    <span class="at">missing_days =</span> <span class="fu">sum</span>(<span class="fu">is.na</span>(snowfall_inches)),</span>
+<span id="cb106-16"><a href="#cb106-16" aria-hidden="true" tabindex="-1"></a>    <span class="at">recorded_days =</span> <span class="fu">n</span>() <span class="sc">-</span> missing_days,</span>
+<span id="cb106-17"><a href="#cb106-17" aria-hidden="true" tabindex="-1"></a>    <span class="at">.groups =</span> <span class="st">"drop"</span>)</span>
+<span id="cb106-18"><a href="#cb106-18" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb106-19"><a href="#cb106-19" aria-hidden="true" tabindex="-1"></a><span class="fu">head</span>(snowfall_seasons, <span class="dv">10</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="cell-output cell-output-stdout">
+<pre><code># A tibble: 10 × 6
+   city    winter_year total_snowfall snowfall_days missing_days recorded_days
+   &lt;chr&gt;         &lt;dbl&gt;          &lt;dbl&gt;         &lt;int&gt;        &lt;int&gt;         &lt;int&gt;
+ 1 Buffalo        1996          138.             76            0           152
+ 2 Buffalo        1997           95.6            70            0           151
+ 3 Buffalo        1998           75.6            53            0           151
+ 4 Buffalo        1999           99.6            40            0           151
+ 5 Buffalo        2000           60.2            49            0           152
+ 6 Buffalo        2001          158.             86            0           151
+ 7 Buffalo        2002          130.             39            0           151
+ 8 Buffalo        2003          108.             66            0           151
+ 9 Buffalo        2004           97.7            61            0           152
+10 Buffalo        2005          100.             58            0           151</code></pre>
+</div>
+</div>
+</section>
+<section id="conclusion-and-next-steps" class="level2">
+<h2 class="anchored" data-anchor-id="conclusion-and-next-steps">Conclusion and Next Steps</h2>
+<p>Throughout this stage of our project, we successfully imported and organized historical snowfall data from 1995 through 2025 for Lexington, Louisville, Buffalo, and Minneapolis. We converted NOAA’s original weather records into daily snowfall observations, converted the measurements from millimeters to inches, and combined all four cities into one dataset containing 43,711 records. We also checked for duplicate dates, missing values, negative snowfall measurements, and parsing errors. Our results showed that Louisville had 48 missing snowfall observations, Buffalo had 13, and Lexington and Minneapolis had none within their recorded dates. We then organized the data by winter season and calculated total recorded snowfall and the number of snowfall days for each winter. These results give us a starting point for understanding how snowfall varies between Kentucky and other regions of the United States.</p>
+<p>Although we have created a usable dataset, we identified some limitations that we will need to address before making final comparisons. Minneapolis and Louisville had fewer monthly records than Lexington and Buffalo, meaning some winter seasons may have incomplete snowfall totals. We also identified two NOAA quality flags in Louisville’s data that require further review. Moving forward, we plan to investigate these missing records and determine which winters have enough observations for reliable comparisons. We will also calculate the first measurable snowfall date for each winter, average seasonal snowfall totals, and year-to-year variability. These measurements will help us determine what a normal Kentucky winter looks like, how much snowfall changes between years, and how Lexington and Louisville compare with Buffalo and Minneapolis.</p>
+</section>
+
+</main>
+<!-- /main column -->
+<script id="quarto-html-after-body" type="application/javascript">
+  window.document.addEventListener("DOMContentLoaded", function (event) {
+    const icon = "";
+    const anchorJS = new window.AnchorJS();
+    anchorJS.options = {
+      placement: 'right',
+      icon: icon
+    };
+    anchorJS.add('.anchored');
+    const isCodeAnnotation = (el) => {
+      for (const clz of el.classList) {
+        if (clz.startsWith('code-annotation-')) {                     
+          return true;
+        }
+      }
+      return false;
+    }
+    const onCopySuccess = function(e) {
+      // button target
+      const button = e.trigger;
+      // don't keep focus
+      button.blur();
+      // flash "checked"
+      button.classList.add('code-copy-button-checked');
+      var currentTitle = button.getAttribute("title");
+      button.setAttribute("title", "Copied!");
+      let tooltip;
+      if (window.bootstrap) {
+        button.setAttribute("data-bs-toggle", "tooltip");
+        button.setAttribute("data-bs-placement", "left");
+        button.setAttribute("data-bs-title", "Copied!");
+        tooltip = new bootstrap.Tooltip(button, 
+          { trigger: "manual", 
+            customClass: "code-copy-button-tooltip",
+            offset: [0, -8]});
+        tooltip.show();    
+      }
+      setTimeout(function() {
+        if (tooltip) {
+          tooltip.hide();
+          button.removeAttribute("data-bs-title");
+          button.removeAttribute("data-bs-toggle");
+          button.removeAttribute("data-bs-placement");
+        }
+        button.setAttribute("title", currentTitle);
+        button.classList.remove('code-copy-button-checked');
+      }, 1000);
+      // clear code selection
+      e.clearSelection();
+    }
+    const getTextToCopy = function(trigger) {
+      const outerScaffold = trigger.parentElement.cloneNode(true);
+      const codeEl = outerScaffold.querySelector('code');
+      for (const childEl of codeEl.children) {
+        if (isCodeAnnotation(childEl)) {
+          childEl.remove();
+        }
+      }
+      return codeEl.innerText;
+    }
+    const clipboard = new window.ClipboardJS('.code-copy-button:not([data-in-quarto-modal])', {
+      text: getTextToCopy
+    });
+    clipboard.on('success', onCopySuccess);
+    if (window.document.getElementById('quarto-embedded-source-code-modal')) {
+      const clipboardModal = new window.ClipboardJS('.code-copy-button[data-in-quarto-modal]', {
+        text: getTextToCopy,
+        container: window.document.getElementById('quarto-embedded-source-code-modal')
+      });
+      clipboardModal.on('success', onCopySuccess);
+    }
+      var localhostRegex = new RegExp(/^(?:http|https):\/\/localhost\:?[0-9]*\//);
+      var mailtoRegex = new RegExp(/^mailto:/);
+        var filterRegex = new RegExp('/' + window.location.host + '/');
+      var isInternal = (href) => {
+          return filterRegex.test(href) || localhostRegex.test(href) || mailtoRegex.test(href);
+      }
+      // Inspect non-navigation links and adorn them if external
+     var links = window.document.querySelectorAll('a[href]:not(.nav-link):not(.navbar-brand):not(.toc-action):not(.sidebar-link):not(.sidebar-item-toggle):not(.pagination-link):not(.no-external):not([aria-hidden]):not(.dropdown-item):not(.quarto-navigation-tool):not(.about-link)');
+      for (var i=0; i<links.length; i++) {
+        const link = links[i];
+        if (!isInternal(link.href)) {
+          // undo the damage that might have been done by quarto-nav.js in the case of
+          // links that we want to consider external
+          if (link.dataset.originalHref !== undefined) {
+            link.href = link.dataset.originalHref;
+          }
+        }
+      }
+    function tippyHover(el, contentFn, onTriggerFn, onUntriggerFn) {
+      const config = {
+        allowHTML: true,
+        maxWidth: 500,
+        delay: 100,
+        arrow: false,
+        appendTo: function(el) {
+            return el.parentElement;
+        },
+        interactive: true,
+        interactiveBorder: 10,
+        theme: 'quarto',
+        placement: 'bottom-start',
+      };
+      if (contentFn) {
+        config.content = contentFn;
+      }
+      if (onTriggerFn) {
+        config.onTrigger = onTriggerFn;
+      }
+      if (onUntriggerFn) {
+        config.onUntrigger = onUntriggerFn;
+      }
+      window.tippy(el, config); 
+    }
+    const noterefs = window.document.querySelectorAll('a[role="doc-noteref"]');
+    for (var i=0; i<noterefs.length; i++) {
+      const ref = noterefs[i];
+      tippyHover(ref, function() {
+        // use id or data attribute instead here
+        let href = ref.getAttribute('data-footnote-href') || ref.getAttribute('href');
+        try { href = new URL(href).hash; } catch {}
+        const id = href.replace(/^#\/?/, "");
+        const note = window.document.getElementById(id);
+        if (note) {
+          return note.innerHTML;
+        } else {
+          return "";
+        }
+      });
+    }
+    const xrefs = window.document.querySelectorAll('a.quarto-xref');
+    const processXRef = (id, note) => {
+      // Strip column container classes
+      const stripColumnClz = (el) => {
+        el.classList.remove("page-full", "page-columns");
+        if (el.children) {
+          for (const child of el.children) {
+            stripColumnClz(child);
+          }
+        }
+      }
+      stripColumnClz(note)
+      if (id === null || id.startsWith('sec-')) {
+        // Special case sections, only their first couple elements
+        const container = document.createElement("div");
+        if (note.children && note.children.length > 2) {
+          container.appendChild(note.children[0].cloneNode(true));
+          for (let i = 1; i < note.children.length; i++) {
+            const child = note.children[i];
+            if (child.tagName === "P" && child.innerText === "") {
+              continue;
+            } else {
+              container.appendChild(child.cloneNode(true));
+              break;
+            }
+          }
+          if (window.Quarto?.typesetMath) {
+            window.Quarto.typesetMath(container);
+          }
+          return container.innerHTML
+        } else {
+          if (window.Quarto?.typesetMath) {
+            window.Quarto.typesetMath(note);
+          }
+          return note.innerHTML;
+        }
+      } else {
+        // Remove any anchor links if they are present
+        const anchorLink = note.querySelector('a.anchorjs-link');
+        if (anchorLink) {
+          anchorLink.remove();
+        }
+        if (window.Quarto?.typesetMath) {
+          window.Quarto.typesetMath(note);
+        }
+        if (note.classList.contains("callout")) {
+          return note.outerHTML;
+        } else {
+          return note.innerHTML;
+        }
+      }
+    }
+    for (var i=0; i<xrefs.length; i++) {
+      const xref = xrefs[i];
+      tippyHover(xref, undefined, function(instance) {
+        instance.disable();
+        let url = xref.getAttribute('href');
+        let hash = undefined; 
+        if (url.startsWith('#')) {
+          hash = url;
+        } else {
+          try { hash = new URL(url).hash; } catch {}
+        }
+        if (hash) {
+          const id = hash.replace(/^#\/?/, "");
+          const note = window.document.getElementById(id);
+          if (note !== null) {
+            try {
+              const html = processXRef(id, note.cloneNode(true));
+              instance.setContent(html);
+            } finally {
+              instance.enable();
+              instance.show();
+            }
+          } else {
+            // See if we can fetch this
+            fetch(url.split('#')[0])
+            .then(res => res.text())
+            .then(html => {
+              const parser = new DOMParser();
+              const htmlDoc = parser.parseFromString(html, "text/html");
+              const note = htmlDoc.getElementById(id);
+              if (note !== null) {
+                const html = processXRef(id, note);
+                instance.setContent(html);
+              } 
+            }).finally(() => {
+              instance.enable();
+              instance.show();
+            });
+          }
+        } else {
+          // See if we can fetch a full url (with no hash to target)
+          // This is a special case and we should probably do some content thinning / targeting
+          fetch(url)
+          .then(res => res.text())
+          .then(html => {
+            const parser = new DOMParser();
+            const htmlDoc = parser.parseFromString(html, "text/html");
+            const note = htmlDoc.querySelector('main.content');
+            if (note !== null) {
+              // This should only happen for chapter cross references
+              // (since there is no id in the URL)
+              // remove the first header
+              if (note.children.length > 0 && note.children[0].tagName === "HEADER") {
+                note.children[0].remove();
+              }
+              const html = processXRef(null, note);
+              instance.setContent(html);
+            } 
+          }).finally(() => {
+            instance.enable();
+            instance.show();
+          });
+        }
+      }, function(instance) {
+      });
+    }
+        let selectedAnnoteEl;
+        const selectorForAnnotation = ( cell, annotation) => {
+          let cellAttr = 'data-code-cell="' + cell + '"';
+          let lineAttr = 'data-code-annotation="' +  annotation + '"';
+          const selector = 'span[' + cellAttr + '][' + lineAttr + ']';
+          return selector;
+        }
+        const selectCodeLines = (annoteEl) => {
+          const doc = window.document;
+          const targetCell = annoteEl.getAttribute("data-target-cell");
+          const targetAnnotation = annoteEl.getAttribute("data-target-annotation");
+          const annoteSpan = window.document.querySelector(selectorForAnnotation(targetCell, targetAnnotation));
+          const lines = annoteSpan.getAttribute("data-code-lines").split(",");
+          const lineIds = lines.map((line) => {
+            return targetCell + "-" + line;
+          })
+          let top = null;
+          let height = null;
+          let parent = null;
+          if (lineIds.length > 0) {
+              //compute the position of the single el (top and bottom and make a div)
+              const el = window.document.getElementById(lineIds[0]);
+              top = el.offsetTop;
+              height = el.offsetHeight;
+              parent = el.parentElement.parentElement;
+            if (lineIds.length > 1) {
+              const lastEl = window.document.getElementById(lineIds[lineIds.length - 1]);
+              const bottom = lastEl.offsetTop + lastEl.offsetHeight;
+              height = bottom - top;
+            }
+            if (top !== null && height !== null && parent !== null) {
+              // cook up a div (if necessary) and position it 
+              let div = window.document.getElementById("code-annotation-line-highlight");
+              if (div === null) {
+                div = window.document.createElement("div");
+                div.setAttribute("id", "code-annotation-line-highlight");
+                div.style.position = 'absolute';
+                parent.appendChild(div);
+              }
+              div.style.top = top - 2 + "px";
+              div.style.height = height + 4 + "px";
+              div.style.left = 0;
+              let gutterDiv = window.document.getElementById("code-annotation-line-highlight-gutter");
+              if (gutterDiv === null) {
+                gutterDiv = window.document.createElement("div");
+                gutterDiv.setAttribute("id", "code-annotation-line-highlight-gutter");
+                gutterDiv.style.position = 'absolute';
+                const codeCell = window.document.getElementById(targetCell);
+                const gutter = codeCell.querySelector('.code-annotation-gutter');
+                gutter.appendChild(gutterDiv);
+              }
+              gutterDiv.style.top = top - 2 + "px";
+              gutterDiv.style.height = height + 4 + "px";
+            }
+            selectedAnnoteEl = annoteEl;
+          }
+        };
+        const unselectCodeLines = () => {
+          const elementsIds = ["code-annotation-line-highlight", "code-annotation-line-highlight-gutter"];
+          elementsIds.forEach((elId) => {
+            const div = window.document.getElementById(elId);
+            if (div) {
+              div.remove();
+            }
+          });
+          selectedAnnoteEl = undefined;
+        };
+          // Handle positioning of the toggle
+      window.addEventListener(
+        "resize",
+        throttle(() => {
+          elRect = undefined;
+          if (selectedAnnoteEl) {
+            selectCodeLines(selectedAnnoteEl);
+          }
+        }, 10)
+      );
+      function throttle(fn, ms) {
+      let throttle = false;
+      let timer;
+        return (...args) => {
+          if(!throttle) { // first call gets through
+              fn.apply(this, args);
+              throttle = true;
+          } else { // all the others get throttled
+              if(timer) clearTimeout(timer); // cancel #2
+              timer = setTimeout(() => {
+                fn.apply(this, args);
+                timer = throttle = false;
+              }, ms);
+          }
+        };
+      }
+        // Attach click handler to the DT
+        const annoteDls = window.document.querySelectorAll('dt[data-target-cell]');
+        for (const annoteDlNode of annoteDls) {
+          annoteDlNode.addEventListener('click', (event) => {
+            const clickedEl = event.target;
+            if (clickedEl !== selectedAnnoteEl) {
+              unselectCodeLines();
+              const activeEl = window.document.querySelector('dt[data-target-cell].code-annotation-active');
+              if (activeEl) {
+                activeEl.classList.remove('code-annotation-active');
+              }
+              selectCodeLines(clickedEl);
+              clickedEl.classList.add('code-annotation-active');
+            } else {
+              // Unselect the line
+              unselectCodeLines();
+              clickedEl.classList.remove('code-annotation-active');
+            }
+          });
+        }
+    const findCites = (el) => {
+      const parentEl = el.parentElement;
+      if (parentEl) {
+        const cites = parentEl.dataset.cites;
+        if (cites) {
+          return {
+            el,
+            cites: cites.split(' ')
+          };
+        } else {
+          return findCites(el.parentElement)
+        }
+      } else {
+        return undefined;
+      }
+    };
+    var bibliorefs = window.document.querySelectorAll('a[role="doc-biblioref"]');
+    for (var i=0; i<bibliorefs.length; i++) {
+      const ref = bibliorefs[i];
+      const citeInfo = findCites(ref);
+      if (citeInfo) {
+        tippyHover(citeInfo.el, function() {
+          var popup = window.document.createElement('div');
+          citeInfo.cites.forEach(function(cite) {
+            var citeDiv = window.document.createElement('div');
+            citeDiv.classList.add('hanging-indent');
+            citeDiv.classList.add('csl-entry');
+            var biblioDiv = window.document.getElementById('ref-' + cite);
+            if (biblioDiv) {
+              citeDiv.innerHTML = biblioDiv.innerHTML;
+            }
+            popup.appendChild(citeDiv);
+          });
+          return popup.innerHTML;
+        });
+      }
+    }
+  });
+  </script>
+</div> <!-- /content -->
+
+
+
+
+</body></html>

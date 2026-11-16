@@ -1,0 +1,532 @@
+---
+title: "Group Project: Wrangling + Q/A"
+format: html
+editor: visual
+author: Aiden Byrd, Hayden Scott, Lilly Hartman
+---
+
+## Data Wrangling
+
+For this stage of our group project, we will be cleaning and organizing historical snowfall data collected from NOAA's GHCN-Daily database. Our analysis will focus on snowfall records from 1995 through 2025, giving us approximately 30 years of historical weather data to examine. We will primarily focus on Lexington and Louisville, Kentucky, while comparing their snowfall patterns with Buffalo, New York, and Minneapolis, Minnesota. By examining these different regions, we hope to better understand what a normal Kentucky winter looks like and how much snowfall varies from year to year.
+
+During the wrangling process, we will organize daily snowfall observations, identify missing values, check for duplicate records, and make sure our dates and measurements are consistent. We will use the cleaned data to calculate seasonal snowfall totals and the number of snowfall days each winter, while preparing the data fset to examine first measurable snowfall dates in the next stage of our project. This will allow us to compare Kentucky's snowfall patterns with other regions of the United States using the same histori
+
+## Lexington
+
+```{r}
+library(tidyverse)
+
+#Import Lexington weather data
+lexington <- read_fwf("Raw GP/Lex KY.dly",
+  fwf_widths(
+    c(11, 4, 2, 4, rep(c(5, 1, 1, 1), 31)),
+    col_names = NULL),
+  col_types = cols(.default = col_character()),
+  show_col_types = FALSE)
+
+glimpse(lexington)
+```
+
+```{r}
+#Rename main columns
+lexington <- lexington |>
+  rename(
+    station_id = X1,
+    year = X2,
+    month = X3,
+    measurement = X4) |>
+  mutate(
+    year = as.numeric(year)) |>
+  filter(
+    measurement == "SNOW",
+    year >= 1995,
+    year <= 2025)
+
+#Look at the snowfall records
+lexington |>
+  select(station_id, year, month, measurement) |>
+  head(10)
+
+nrow(lexington)
+```
+
+```{r}
+
+#Keep the daily snowfall value columns
+lexington_daily <- lexington |>
+  select(
+    station_id, year, month,
+    all_of(paste0("X", 5 + 4 * (0:30))))
+
+#Rename the daily columns
+lexington_daily <- lexington_daily |>
+  rename_with(~ paste0("day_", 1:31),
+    starts_with("X"))
+
+#Turn daily columns into rows
+lexington_daily <- lexington_daily |>
+  pivot_longer(
+    cols = starts_with("day_"),
+    names_to = "day",
+    values_to = "snowfall_mm") |>
+  mutate(
+    day = as.numeric(str_remove(day, "day_")),
+    snowfall_mm = as.numeric(snowfall_mm),
+    snowfall_mm = na_if(snowfall_mm, -9999),
+    date = as.Date(paste(year, month, day, sep = "-")),
+    snowfall_inches = snowfall_mm / 25.4) |>
+  filter(!is.na(date)) |>
+  select(station_id, date, snowfall_inches)
+
+head(lexington_daily, 10)
+
+#Daily observations
+nrow(lexington_daily)
+
+```
+
+After organizing Lexington's original weather records, we converted the monthly snowfall data into individual daily observations using pivot_longer(). We also converted the snowfall measurements from millimeters to inches and removed invalid dates and missing measurement codes. This gave us 11,323 daily records from 1995 through 2025, making the data much easier to work with and compare.
+
+```{r}
+#Check for duplicates
+lexington_daily |>
+  count(station_id, date) |>
+  filter(n > 1)
+
+#Check for missing snowfall values
+lexington_daily |>
+  summarise(
+    total_days = n(),
+    missing_snowfall = sum(is.na(snowfall_inches)),
+    missing_percent = mean(is.na(snowfall_inches)) * 100)
+
+#Check for negative snowfall amounts
+lexington_daily |>
+  filter(snowfall_inches < 0)
+
+#Check the date range
+lexington_daily |>
+  summarise(
+    first_date = min(date),
+    last_date = max(date))
+
+#Check parsing problems
+nrow(problems(lexington))
+
+```
+
+```{r}
+#Check NOAA's snowfall quality flags
+lexington |>
+  select(all_of(paste0("X", 7 + 4 * (0:30)))) |>
+  pivot_longer(
+    cols = everything(),
+    names_to = "day",
+    values_to = "quality_flag") |>
+  count(quality_flag)
+```
+
+We then checked Lexington's data for duplicate dates, missing snowfall measurements, negative snowfall values, and parsing problems. These checks help us determine whether the observations are consistent and identify any issues that could affect our results. We also examined NOAA's quality flags to see whether any snowfall measurements had been marked as questionable.
+
+## Louisville
+
+We followed the same process for Louisville, Kentucky, to make sure both Kentucky cities were organized consistently. After filtering the snowfall records to 1995–2025, we converted the observations into daily snowfall measurements and checked the data for missing values and duplicates. Louisville had 11,080 daily records, including 48 missing snowfall values. We also identified two observations with NOAA quality flags that will need further review.
+
+```{r}
+#Import Louisville weather data
+louisville <- read_fwf(
+  "Raw GP/LOU KY.dly",
+  fwf_widths(
+    c(11, 4, 2, 4, rep(c(5, 1, 1, 1), 31)),
+    col_names = NULL),
+  col_types = cols(.default = col_character()),
+  show_col_types = FALSE)
+
+glimpse(louisville)
+```
+
+```{r}
+#Keep Lou snowfall records from 1995-2025
+louisville <- louisville |>
+  rename(
+    station_id = X1,
+    year = X2,
+    month = X3,
+    measurement = X4) |>
+  mutate(
+    year = as.numeric(year)) |>
+  filter(
+    measurement == "SNOW",
+    year >= 1995,
+    year <= 2025)
+
+louisville |>
+  select(station_id, year, month, measurement) |>
+  head(10)
+
+nrow(louisville)
+```
+
+```{r}
+#Select daily snowfall columns
+louisville_daily <- louisville |>
+  select(
+    station_id, year, month,
+    all_of(paste0("X", 5 + 4 * (0:30)))) |>
+  rename_with(~ paste0("day_", 1:31),
+    starts_with("X"))
+
+#Turn daily columns into rows
+louisville_daily <- louisville_daily |>
+  pivot_longer(
+    cols = starts_with("day_"),
+    names_to = "day",
+    values_to = "snowfall_mm") |>
+  mutate(
+    day = as.numeric(str_remove(day, "day_")),
+    snowfall_mm = as.numeric(snowfall_mm),
+    snowfall_mm = na_if(snowfall_mm, -9999),
+    date = as.Date(paste(year, month, day, sep = "-")),
+    snowfall_inches = snowfall_mm / 25.4) |>
+  filter(!is.na(date)) |>
+  select(station_id, date, snowfall_inches)
+
+head(louisville_daily, 10)
+
+nrow(louisville_daily)
+```
+
+```{r}
+#Duplicate station/date records
+louisville_daily |>
+  count(station_id, date) |>
+  filter(n > 1)
+
+#Missing snowfall observations
+louisville_daily |>
+  summarise(
+    total_days = n(),
+    missing_snowfall = sum(is.na(snowfall_inches)),
+    missing_percent = mean(is.na(snowfall_inches)) * 100)
+
+#Check for negative snowfall
+louisville_daily |>
+  filter(snowfall_inches < 0)
+
+#Check parsing problems
+nrow(problems(louisville))
+```
+
+```{r}
+#Check for missing dates
+louisville_daily |>
+  summarise(
+    missing_dates = sum(is.na(date)),
+    first_date = min(date),
+    last_date = max(date))
+
+#Check NOAA snowfall quality flags
+louisville |>
+  select(all_of(paste0("X", 7 + 4 * (0:30)))) |>
+  pivot_longer(
+    cols = everything(),
+    names_to = "day",
+    values_to = "quality_flag") |>
+  count(quality_flag)
+
+#Check missing snowfall values
+louisville_daily |>
+  summarise(
+    missing_snowfall = sum(is.na(snowfall_inches)))
+```
+
+## Buffalo
+
+Next, we organized the snowfall records for Buffalo, New York. We selected Buffalo because it experiences significantly different winter weather conditions than Kentucky, particularly due to lake-effect snow. Using the same cleaning process, we created 11,323 daily observations, with 13 missing snowfall measurements. This will allow us to compare snowfall frequency and accumulation between Kentucky and a traditionally snowier region of the country.
+
+```{r}
+#Import Buffalo weather data
+buffalo <- read_fwf(
+  "Raw GP/Buff NY.dly",
+  fwf_widths(
+    c(11, 4, 2, 4, rep(c(5, 1, 1, 1), 31)),
+    col_names = NULL),
+  col_types = cols(.default = col_character()),
+  show_col_types = FALSE)
+
+glimpse(buffalo)
+```
+
+```{r}
+#Keep Buffalo snowfall records from 1995-2025
+buffalo <- buffalo |>
+  rename(
+    station_id = X1,
+    year = X2,
+    month = X3,
+    measurement = X4) |>
+  mutate(
+    year = as.numeric(year)) |>
+  filter(
+    measurement == "SNOW",
+    year >= 1995,
+    year <= 2025)
+
+buffalo |>
+  select(station_id, year, month, measurement) |>
+  head(10)
+
+nrow(buffalo)
+```
+
+```{r}
+#Select the daily snowfall columns
+buffalo_daily <- buffalo |>
+  select(
+    station_id, year, month,
+    all_of(paste0("X", 5 + 4 * (0:30)))) |>
+  rename_with(~ paste0("day_", 1:31),
+    starts_with("X"))
+
+#Turn daily columns into rows
+buffalo_daily <- buffalo_daily |>
+  pivot_longer(
+    cols = starts_with("day_"),
+    names_to = "day",
+    values_to = "snowfall_mm") |>
+  mutate(
+    day = as.numeric(str_remove(day, "day_")),
+    snowfall_mm = as.numeric(snowfall_mm),
+    snowfall_mm = na_if(snowfall_mm, -9999),
+    date = as.Date(paste(year, month, day, sep = "-")),
+    snowfall_inches = snowfall_mm / 25.4) |>
+  filter(!is.na(date)) |>
+  select(station_id, date, snowfall_inches)
+
+head(buffalo_daily, 10)
+
+nrow(buffalo_daily)
+```
+
+```{r}
+#Check duplicates
+buffalo_daily |>
+  count(station_id, date) |>
+  filter(n > 1)
+
+#Check missing values
+buffalo_daily |>
+  summarise(
+    total_days = n(),
+    missing_snowfall = sum(is.na(snowfall_inches)),
+    missing_percent = mean(is.na(snowfall_inches)) * 100)
+
+#Check negative snowfall
+buffalo_daily |>
+  filter(snowfall_inches < 0)
+
+#Check date range
+buffalo_daily |>
+  summarise(
+    first_date = min(date),
+    last_date = max(date))
+
+#Check parsing problems
+nrow(problems(buffalo))
+
+#Check quality flags
+buffalo |>
+  select(all_of(paste0("X", 7 + 4 * (0:30)))) |>
+  pivot_longer(
+    cols = everything(),
+    names_to = "day",
+    values_to = "quality_flag") |>
+  count(quality_flag)
+```
+
+## Minneapolis
+
+We then repeated the process for Minneapolis, Minnesota, to represent the upper Midwest. Minneapolis had 9,985 daily observations and no missing snowfall values within those records. However, it had fewer monthly records than the other cities, meaning some dates may be absent from the dataset entirely. This is something we will need to consider when comparing snowfall totals across different winters.
+
+```{r}
+#Import Minneapolis weather data
+minneapolis <- read_fwf(
+  "Raw GP/Minneapolis, MN.dly",
+  fwf_widths(
+    c(11, 4, 2, 4, rep(c(5, 1, 1, 1), 31)),
+    col_names = NULL),
+  col_types = cols(.default = col_character()),
+  show_col_types = FALSE)
+
+glimpse(minneapolis)
+```
+
+```{r}
+#Keep Minneapolis snowfall records from 1995-2025
+minneapolis <- minneapolis |>
+  rename(
+    station_id = X1,
+    year = X2,
+    month = X3,
+    measurement = X4) |>
+  mutate(
+    year = as.numeric(year)) |>
+  filter(
+    measurement == "SNOW",
+    year >= 1995,
+    year <= 2025)
+
+#View snowfall records
+minneapolis |>
+  select(station_id, year, month, measurement) |>
+  head(10)
+
+nrow(minneapolis)
+```
+
+```{r}
+#Select the daily snowfall columns
+minneapolis_daily <- minneapolis |>
+  select(
+    station_id, year, month,
+    all_of(paste0("X", 5 + 4 * (0:30)))) |>
+  rename_with(
+    ~ paste0("day_", 1:31),
+    starts_with("X"))
+
+#Turn daily columns into rows
+minneapolis_daily <- minneapolis_daily |>
+  pivot_longer(
+    cols = starts_with("day_"),
+    names_to = "day",
+    values_to = "snowfall_mm") |>
+  mutate(
+    day = as.numeric(str_remove(day, "day_")),
+    snowfall_mm = as.numeric(snowfall_mm),
+    snowfall_mm = na_if(snowfall_mm, -9999),
+    date = as.Date(paste(year, month, day, sep = "-")),
+    snowfall_inches = snowfall_mm / 25.4) |>
+  filter(!is.na(date)) |>
+  select(station_id, date, snowfall_inches)
+
+head(minneapolis_daily, 10)
+
+nrow(minneapolis_daily)
+
+```
+
+```{r}
+#Check for duplicates
+minneapolis_daily |>
+  count(station_id, date) |>
+  filter(n > 1)
+
+#Check missing snowfall values
+minneapolis_daily |>
+  summarise(
+    total_days = n(),
+    missing_snowfall = sum(is.na(snowfall_inches)),
+    missing_percent = mean(is.na(snowfall_inches)) * 100)
+
+#Check for negative snowfall values
+minneapolis_daily |>
+  filter(snowfall_inches < 0)
+
+#Check date range
+minneapolis_daily |>
+  summarise(
+    first_date = min(date),
+    last_date = max(date))
+
+#Check parsing problems
+nrow(problems(minneapolis))
+
+#Check NOAA quality flags
+minneapolis |>
+  select(all_of(paste0("X", 7 + 4 * (0:30)))) |>
+  pivot_longer(
+    cols = everything(),
+    names_to = "day",
+    values_to = "quality_flag") |>
+  count(quality_flag)
+```
+
+## Combining the cities
+
+After cleaning each city's snowfall records separately, we combined all four datasets using bind_rows(). Since each dataset contained the same variables, we were able to combine them into one table. We then added city names to make the observations easier to identify. Our combined dataset contains 43,711 daily records across the four cities. We also checked for duplicate city-date combinations and compared missing snowfall observations between locations.
+
+```{r}
+#Combine the four snowfall datasets
+snowfall_daily <- bind_rows(
+  lexington_daily,
+  louisville_daily,
+  buffalo_daily,
+  minneapolis_daily)
+
+glimpse(snowfall_daily)
+
+nrow(snowfall_daily)
+```
+
+```{r}
+#Add city names to our dataset
+snowfall_daily <- snowfall_daily |>
+  mutate(
+    city = case_when(
+      station_id == "USW00093820" ~ "Lexington",
+      station_id == "USW00093821" ~ "Louisville",
+      station_id == "USW00014733" ~ "Buffalo",
+      station_id == "USW00014922" ~ "Minneapolis")) |>
+  select(city, date, snowfall_inches)
+
+snowfall_daily |>
+  count(city)
+
+head(snowfall_daily, 10)
+```
+
+```{r}
+#Check for duplicates
+snowfall_daily |>
+  count(city, date) |>
+  filter(n > 1)
+
+#Check missing snowfall observations by city
+snowfall_daily |>
+  group_by(city) |>
+  summarise(
+    total_days = n(),
+    missing_days = sum(is.na(snowfall_inches)))
+```
+
+## Snowfall by winter
+
+To begin answering our research question, we organized the daily observations into winter seasons rather than calendar years. We defined each winter as November through March, with December grouped with January through March of the following year. Using group_by() and summarize(), we calculated total recorded snowfall, the number of days with measurable snowfall, and the number of missing observations for each city and winter. This allows us to begin comparing how much snowfall varies between years and locations.
+
+```{r}
+#Calculate snowfall totals by winter season
+snowfall_seasons <- snowfall_daily |>
+  mutate(
+    year = lubridate::year(date),
+    month = lubridate::month(date),
+    winter_year = if_else(month >= 11, year + 1, year)) |>
+  filter(
+    month %in% c(11, 12, 1, 2, 3),
+    winter_year >= 1996,
+    winter_year <= 2025) |>
+  group_by(city, winter_year) |>
+  summarise(
+    total_snowfall = sum(snowfall_inches, na.rm = TRUE),
+    snowfall_days = sum(snowfall_inches > 0, na.rm = TRUE),
+    missing_days = sum(is.na(snowfall_inches)),
+    recorded_days = n() - missing_days,
+    .groups = "drop")
+
+head(snowfall_seasons, 10)
+```
+
+## Conclusion and Next Steps
+
+Throughout this stage of our project, we successfully imported and organized historical snowfall data from 1995 through 2025 for Lexington, Louisville, Buffalo, and Minneapolis. We converted NOAA's original weather records into daily snowfall observations, converted the measurements from millimeters to inches, and combined all four cities into one dataset containing 43,711 records. We also checked for duplicate dates, missing values, negative snowfall measurements, and parsing errors. Our results showed that Louisville had 48 missing snowfall observations, Buffalo had 13, and Lexington and Minneapolis had none within their recorded dates. We then organized the data by winter season and calculated total recorded snowfall and the number of snowfall days for each winter. These results give us a starting point for understanding how snowfall varies between Kentucky and other regions of the United States.
+
+Although we have created a usable dataset, we identified some limitations that we will need to address before making final comparisons. Minneapolis and Louisville had fewer monthly records than Lexington and Buffalo, meaning some winter seasons may have incomplete snowfall totals. We also identified two NOAA quality flags in Louisville's data that require further review. Moving forward, we plan to investigate these missing records and determine which winters have enough observations for reliable comparisons. We will also calculate the first measurable snowfall date for each winter, average seasonal snowfall totals, and year-to-year variability. These measurements will help us determine what a normal Kentucky winter looks like, how much snowfall changes between years, and how Lexington and Louisville compare with Buffalo and Minneapolis.
