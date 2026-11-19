@@ -1,0 +1,225 @@
+---
+title: "Weekly 8: A Report for Coach Getsee"
+author: "Aiden Byrd"
+format:
+  html:
+    embed-resources: true
+editor: visual
+---
+
+## Overview
+
+Coach Getsee asked us what his pitchers' stuff looks like, specifically their **movement profiles** and their **release profiles**. In class we built a movement profile for Nathan Hale. This week you'll build a short report for one other pitcher.
+
+Your pitcher: **Put the name here**
+
+The report has two figures:
+
+1.  his **movement profile** (what we did in class)
+2.  his **release geometry**: where the ball leaves his hand
+
+and a short note telling coach what to look at.
+
+A few things:
+
+1.  Add `#| echo: false` to your code blocks. Coach should see charts and words, not code.
+2.  Use a new block when you move to a new task.
+3.  Code goes in the blocks. **Answers go outside them**, as prose.
+4.  Every chart uses a colorblind-safe palette, and each pitch type is **the same color in both figures**.
+
+Due Thursday, November 19 at 8pm.
+
+# Part 1: Get to know your pitcher
+
+This part is for you. It won't go in the report, but you can't build the report without it.
+
+```{r}
+#| echo: false
+#| warning: false
+
+library(tidyverse)
+
+trackman <- read_csv("trackman_fall_2026.csv")
+
+```
+
+We're using the same colors for every pitcher, so that a slider is the same color in every report coach gets. Run this as is. If your pitcher throws a pitch type that isn't here, add it.
+
+```{r}
+#| echo: false
+
+okabe_ito <- unname(palette.colors(palette = "Okabe-Ito")[2:8])
+
+pitch_colors <- c(
+  "Fastball" = okabe_ito[1],
+  "FourSeamFastBall" = okabe_ito[1],
+  "Sinker" = okabe_ito[4],
+  "ChangeUp" = okabe_ito[5],
+  "Splitter" = okabe_ito[2],
+  "Slider" = okabe_ito[3],
+  "Sweeper" = okabe_ito[6],
+  "Curveball" = okabe_ito[7],
+  "Cutter" = "black",
+  "Undefined" = "gray50"
+)
+```
+
+> Filter to your pitcher. How many pitches does he have, and over how many days? Which hand does he throw with?
+>
+> Race has 180 pitches recorded over 6 days, he is right handed.
+
+```{r}
+#| echo: false
+#| warning: false
+
+race <- trackman |>
+  filter(Pitcher == "Webb, Race")
+
+race |>
+  summarise(
+    pitches = n(),
+    days = n_distinct(Date)
+  )
+
+race |>
+  count(PitcherThrows)
+```
+
+> Compare `TaggedPitchType` and `AutoPitchType` for your pitcher. Which column will you use, and why?
+>
+> TaggedPitchType because the automatic classifications were different, it had 124 fastballs being labeled as changeups. The tagged data seems more reliable for analyzing Race Webb's actual pitch types than the auto pitches.
+
+```{r}
+#| echo: false
+#| warning: false
+
+race |>
+  count(TaggedPitchType, sort = TRUE)
+
+race |>
+  count(AutoPitchType, sort = TRUE)
+
+race |>
+  count(TaggedPitchType, AutoPitchType, sort = TRUE)
+```
+
+> Which pitch types does he throw often enough to say something about? What will you do with the rest?
+>
+> Race throws mostly fastballs, 135 out of 180 pitches are fastballs. Sliders comes in second place with 36 pitches. I would exclude the 9 sinkers because the sample size is small.
+
+# Part 2: The report
+
+Everything in this part goes to coach.
+
+## His movement profile
+
+> Make a movement profile for your pitcher that coach can read without you in the room. Use what we did in class: labels instead of a legend, how many pitches are behind each label, the raw pitches in the background, and a title that tells coach what to see.
+
+```{r}
+#| echo: false
+#| warning: false
+
+race_main <- race |>
+  filter(TaggedPitchType %in% c("Fastball", "Slider"))
+
+movement <- race_main |>
+  group_by(TaggedPitchType) |>
+  summarise(
+    HorzBreak = mean(HorzBreak, na.rm = TRUE),
+    InducedVertBreak = mean(InducedVertBreak, na.rm = TRUE),
+    n = n())
+
+ggplot(race_main, aes(x = HorzBreak, y = InducedVertBreak)) +
+  geom_point(color = "grey80", alpha =0.3) +
+  geom_point(
+    data = movement,
+    aes(color = TaggedPitchType),
+    size = 3
+  ) +
+  geom_text(
+    data = movement,
+    aes(label = paste(TaggedPitchType, n),
+        color = TaggedPitchType),
+    hjust = -0.2,
+    vjust = -1,
+    size = 4
+  ) +
+  scale_color_manual(values = pitch_colors) +
+  labs(
+    title = "Race Webb's Fastball and Slider Distinct Movement",
+    x = "Horizontal Break (inches)",
+    y = "Induced Vertical Break (inches)"
+  ) +
+  theme_minimal() 
+```
+
+## His release geometry
+
+`RelSide` and `RelHeight` are where the ball leaves his hand, in feet: side to side, and how high. (Check the glossary for where 0 is.) Coaches care about this because if one pitch comes out of a different spot than the others, a hitter can pick it up early.
+
+> Make a figure that answers: **does every pitch come out of the same place?** The design is up to you. A few things to think about:
+>
+> - Both axes are in feet. What did Wilke say about that?
+> - The differences here might be small. Is a foot the right unit for coach?
+> - Does coach need every pitch, the average for each pitch type, or both?
+> - Each pitch type has to be the same color it was in your movement profile.
+
+```{r}
+#| echo: false
+#| warning: false
+release <- race_main |>
+  group_by(TaggedPitchType) |>
+  summarise(
+    RelSide = mean(RelSide, na.rm = TRUE),
+    RelHeight = mean(RelHeight, na.rm = TRUE),
+    n = n())
+
+ggplot(race_main, aes(x = RelSide, y = RelHeight)) +
+  geom_point(color = "gray80", alpha = 0.3) +
+  geom_point(
+    data = release,
+    aes(color = TaggedPitchType),
+    size = 4) +
+  geom_text(
+    data = release,
+    aes(label = paste(TaggedPitchType, n),
+        color = TaggedPitchType),
+    vjust = c(-1.5, 2),
+    size = 3)+
+  scale_color_manual(values = pitch_colors) +
+  coord_equal() +
+  labs(
+    title = "Race Webb: Fastball vs. Slider Release Points",
+    x = "Release Side (feet)",
+    y = "Release Height (feet)") +
+  theme_minimal()+
+  theme(legend.position = "none")
+```
+
+## A note for coach
+
+> In **150 words or fewer**, tell coach what to look at in each figure and what it means for this pitcher. Include one thing he should be careful about (for example, how many pitches something is based on, or which pitch type column you used).
+>
+> The first chart shows that Race Webb's fastball and slider have very different movement patterns. His fastball has more positive horizontal and vertical break, while his slider moves in the opposite direction. This gives him two pitches with noticeably different movement profiles. The second chart shows that his fastball and slider are released from very similar locations. This is a positive sign because hitters may have a harder time identifying which pitch is coming based on his release point alone.
+>
+> One thing to keep in mind is that I used TaggedPitchType because the automatic classifications were inconsistent with the tagged data. Also, this analysis includes 135 fastballs and 36 sliders, so the pitch results are based on a smaller sample.
+
+# Part 3: Behind the report
+
+This part is for me, not coach.
+
+> Was there anything in the data you weren't sure about for your pitcher? What did you do about it? When making the charts, I wasn't sure whether the small differences in release points were significant. I compared the average release points with the individual pitches and found that they overlapped quite a bit, but I couldn't determine whether hitters would actually notice those differences.
+
+# Disclosure appendix
+
+> What did you try first? Include the code you wrote and the actual error message, or a clear description of the problem if there was no error.
+>
+> I considered only showing the average release point for each pitch type, but decided to include the individual pitches in the background as well. This worked better because it showed how much the release points varied and whether the fastballs and sliders overlapped.
+
+> If you used an AI system: the exact prompt, exactly what it returned, what it got wrong or left unclear, and what you changed.
+
+> If you didn't use one, say so. I did not
+
+# Before you submit
+
+Render in a clean session: restart R, then render. Read your report as if you were coach: does every chart make sense without anything from class? Commit and push the `.qmd` and the `.html`.
